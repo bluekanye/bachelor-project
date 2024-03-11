@@ -1,0 +1,93 @@
+.navbar {
+  background-color: rgba(35, 195, 244, 0.85);
+  color: white;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s;
+}
+
+.navbar a:hover {
+  color: #f7f7f7;
+}
+
+.navbar-brand {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.nav-item:last-child {
+  margin-right: 10rem;
+}
+
+@media screen and (max-width: 600px) {
+  .nav-menu {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    display: none;
+  }
+
+  .nav-item {
+    margin: 0.5rem 0;
+  }
+
+  .nav-menu.active {
+    display: flex;
+  }
+
+  .navbar-toggler {
+    display: initial;
+    cursor: pointer;
+  }
+}
+
+.navbar-toggler {
+  display: none;
+}
+.navbar-logo {
+  height: 50px;
+  width: auto;
+}
+
+.navbar {
+  background-color: var(--navbar-background);
+  color: white;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+body.dark .navbar {
+  background-color: var(--navbar-background-dark);
+  color: white;
+}

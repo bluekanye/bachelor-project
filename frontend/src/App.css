@@ -1,0 +1,192 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* light mode */
+body.light {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --link-color: #0000ee;
+  --button-background: #e0e0e0;
+  --button-text-color: #000000;
+  --navbar-background: rgba(35, 195, 244, 0.85);
+}
+
+/* dark mode */
+body.dark {
+  --background-color: #121212;
+  --text-color: #ffffff;
+  --link-color: #dddddd;
+  --button-background: #333333;
+  --button-text-color: #ffffff;
+  --navbar-background-dark: #595959;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  color: var(--link-color);
+}
+
+button {
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+}
+
+.theme-toggle-container {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
+
+.theme-toggle-checkbox {
+  display: none; /* Hide the default checkbox */
+}
+
+/* slider background */
+.theme-toggle-slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+/* circle inside the slider */
+.theme-toggle-slider:before {
+  background-color: white;
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: 0.4s;
+  width: 26px;
+  border-radius: 50%;
+}
+
+/* checkbox is checked */
+.theme-toggle-checkbox:checked + .theme-toggle-slider {
+  background-color: #a6a6a6;
+}
+
+/* inside the slider when checked */
+.theme-toggle-checkbox:checked + .theme-toggle-slider:before {
+  transform: translateX(26px);
+  background-color: #16181a;
+}
+
+/* slider is hovered over */
+.theme-toggle-slider:hover {
+  background-color: #a6a6a6;
+}
+
+.theme-toggle-checkbox:focus + .theme-toggle-slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+.navbar .theme-toggle-container {
+  position: absolute;
+  top: 50%;
+  right: 5rem;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+/*
+.toggle-emoji {
+  font-size: 20px; 
+}
+
+*/
+
+/* CSS to insert emojis as background content */
+.theme-toggle-container.light .theme-toggle-slider::before {
+  content: "🌞";
+}
+
+.theme-toggle-container.dark .theme-toggle-slider::before {
+  content: "🌜";
+}
+
+.theme-toggle-container {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
+
+.theme-toggle-checkbox {
+  display: none;
+}
+
+.theme-toggle-slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.theme-toggle-slider:before {
+  background-color: white;
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: 0.4s;
+  width: 26px;
+  border-radius: 50%;
+}
+
+.theme-toggle-checkbox:checked + .theme-toggle-slider.dark:before {
+  background-color: var(--dark-button-background);
+}
