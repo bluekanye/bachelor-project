@@ -17,6 +17,12 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 
+const allowedTables = ['Teachers', 'Classes', 'Subjects', 'Classrooms', 'TeacherSubjects', 'ClassSchedules'];
+
+app.get('/api/tables', (req, res) => {
+  res.json(allowedTables);
+});
+
 // Routes
 app.post('/api/teachers', async (req, res) => {
   console.log(req.body); 
@@ -83,17 +89,42 @@ app.delete('/api/teachers/:id', async (req, res) => {
   }
 });
 
-app.get('/api/teachers/:id/subjects', async (req, res) => {
-  const { id } = req.params;
+// app.get('/api/teachers/:id/subjects', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     // Updated query to include teacher information
+//     const { rows } = await pool.query(`
+//       SELECT s.SubjectID, s.SubjectName, t.TeacherID, t.Name AS TeacherName, t.Email AS TeacherEmail
+//       FROM Subjects s
+//       JOIN TeacherSubjects ts ON s.SubjectID = ts.SubjectID
+//       JOIN Teachers t ON ts.TeacherID = t.TeacherID
+//       WHERE ts.TeacherID = $1
+//     `, [id]);
+    
+//     res.json(rows);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+app.get('/api/teachersubjects', async (req, res) => {
   try {
-    // Updated query to include teacher information
+    // Query to fetch all teacher-subject associations
     const { rows } = await pool.query(`
-      SELECT s.SubjectID, s.SubjectName, t.TeacherID, t.Name AS TeacherName, t.Email AS TeacherEmail
-      FROM Subjects s
-      JOIN TeacherSubjects ts ON s.SubjectID = ts.SubjectID
-      JOIN Teachers t ON ts.TeacherID = t.TeacherID
-      WHERE ts.TeacherID = $1
-    `, [id]);
+      SELECT 
+        s.SubjectID, 
+        s.SubjectName, 
+        t.TeacherID, 
+        t.Name AS TeacherName, 
+        t.Email AS TeacherEmail
+      FROM 
+        Subjects s
+      JOIN 
+        TeacherSubjects ts ON s.SubjectID = ts.SubjectID
+      JOIN 
+        Teachers t ON ts.TeacherID = t.TeacherID
+    `);
     
     res.json(rows);
   } catch (err) {
@@ -105,13 +136,14 @@ app.get('/api/teachers/:id/subjects', async (req, res) => {
 
 
 
+
 // Create (POST) - Add a new class
 app.post('/api/classes', async (req, res) => {
-  const { className } = req.body;
+  const { classname } = req.body;
   try {
     const newClass = await pool.query(
       'INSERT INTO Classes (ClassName) VALUES ($1) RETURNING *',
-      [className]
+      [classname]
     );
     res.json(newClass.rows[0]);
   } catch (err) {
@@ -134,11 +166,11 @@ app.get('/api/classes', async (req, res) => {
 
 app.put('/api/classes/:id', async (req, res) => {
   const { id } = req.params; 
-  const { className } = req.body;
+  const { classname } = req.body;
   try {
     const updateClass = await pool.query(
       'UPDATE Classes SET ClassName = $1 WHERE ClassID = $2 RETURNING *',
-      [className, id]
+      [classname, id]
     );
     if (updateClass.rows.length > 0) {
       res.json(updateClass.rows[0]);
@@ -182,11 +214,11 @@ app.get('/api/subjects', async (req, res) => {
 });
 
 app.post('/api/subjects', async (req, res) => {
-  const { subjectName } = req.body;
+  const { subjectname } = req.body;
   try {
     const newSubject = await pool.query(
       'INSERT INTO Subjects (SubjectName) VALUES ($1) RETURNING *',
-      [subjectName]
+      [subjectname]
     );
     res.json(newSubject.rows[0]);
   } catch (err) {
@@ -198,11 +230,11 @@ app.post('/api/subjects', async (req, res) => {
 
 app.put('/api/subjects/:id', async (req, res) => {
   const { id } = req.params; 
-  const { subjectName } = req.body;
+  const { subjectname } = req.body;
   try {
     const updateSubject = await pool.query(
       'UPDATE Subjects SET SubjectName = $1 WHERE SubjectID = $2 RETURNING *',
-      [subjectName, id]
+      [subjectname, id]
     );
     if (updateSubject.rows.length > 0) {
       res.json(updateSubject.rows[0]);
@@ -244,7 +276,7 @@ app.get('/api/classrooms', async (req, res) => {
   }
 });
 
-app.get('/api/teacher-subjects', async (req, res) => {
+app.get('/api/teachersubjects', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM TeacherSubjects');
     res.json(rows);
@@ -254,14 +286,14 @@ app.get('/api/teacher-subjects', async (req, res) => {
   }
 });
 
-app.post('/api/teacher-subjects', async (req, res) => {
-  const { teacherId, subjectId } = req.body;
+app.post('/api/teachersubjects', async (req, res) => {
+  const { teacherid, subjectid } = req.body;
   try {
     const results = await Promise.all(
       subjectId.map(id => {
         return pool.query(
           'INSERT INTO TeacherSubjects (TeacherID, SubjectID) VALUES ($1, $2) RETURNING *',
-          [teacherId, id]
+          [teacherid, id]
         );
       })
     );
@@ -275,12 +307,12 @@ app.post('/api/teacher-subjects', async (req, res) => {
 
 
 
-app.delete('/api/teacher-subjects', async (req, res) => {
-  const { teacherId, subjectId } = req.body;
+app.delete('/api/teachersubjects', async (req, res) => {
+  const { teacherid, subjectid } = req.body;
   try {
     const { rows } = await pool.query(
       'DELETE FROM TeacherSubjects WHERE TeacherID = $1 AND SubjectID = $2 RETURNING *',
-      [teacherId, subjectId]
+      [teacherid, subjectid]
     );
     if (rows.length > 0) {
       res.json({ message: 'Subject unassigned from teacher' });
@@ -353,6 +385,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
 
 
 // Start server

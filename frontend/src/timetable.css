@@ -1,115 +1,105 @@
-.timetable-container {
-  margin: 110px 20px 20px;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.timetable-app {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  margin-top: 6rem;
 }
 
-.timetable-container h1 {
-  text-align: center;
-  color: #333;
+.sidebar {
+  width: 200px;
+  height: 100vh;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
-.timetable {
+.sidebar h2 {
+  margin-bottom: 1rem;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+.sidebar li:hover {
+  background-color: #e0e0e0;
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+}
+
+.content h2 {
+  margin-bottom: 1rem;
+}
+
+.data-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.timetable th,
-.timetable td {
-  border: 1px solid #000;
-  padding: 8px;
-  text-align: center;
-  color: #333;
+.data-table th,
+.data-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
 }
 
-.timetable th {
-  background-color: #f2f2f2;
-  color: #333;
+.data-table th {
+  background-color: #f0f0f0;
 }
 
-.timetable-container h1 {
-  text-align: center;
-  color: #333;
-}
-
-.day-container {
-  margin-bottom: 20px;
-}
-
-.day-container h2 {
-  color: #444;
-  margin-bottom: 10px;
-}
-
-.subject-list {
-  list-style: none;
-  padding: 0;
-}
-
-.subject-list li {
-  background-color: #e3e3e3;
-  padding: 5px 10px;
-  margin-bottom: 5px;
-  border-radius: 4px;
-}
-
-.add-subject-btn {
-  background-color: #4caf50;
+button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #007bff;
   color: white;
-  border: none;
-  padding: 10px 15px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 14px;
-  margin: 4px 2px;
   cursor: pointer;
-  border-radius: 4px;
 }
 
-.add-subject-btn:hover {
-  background-color: #45a049;
+button:hover {
+  background-color: #0056b3;
 }
 
-.delete-subject-btn {
-  background-color: #f44336;
-  color: black;
-  border: none;
-  padding: 8px 16px;
-  margin-left: 10px;
-  cursor: pointer;
-  border-radius: 6px;
-  font-size: 12px;
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2rem;
+  width: 300px;
+  border-radius: 5px;
 }
 
-.delete-subject-btn:hover {
-  background-color: #d32f2f;
+.modal form div {
+  margin-bottom: 1rem;
 }
 
-.subject-cell {
-  position: relative;
-  padding: 8px;
-}
-
-.subject-content {
-  position: relative;
-}
-
-.delete-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: red;
-  color: black;
-  border: none;
-  cursor: pointer;
-  padding: 0 10px;
-  display: none;
-  border-radius: 0 6px;
-}
-
-.subject-content:hover .delete-button {
+.modal form label {
   display: block;
+  margin-bottom: 0.5rem;
+}
+
+.modal form input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+}
+
+.modal form input.error {
+  border-color: red;
+}
+
+.modal form p {
+  color: red;
+  margin-top: 0.25rem;
 }
