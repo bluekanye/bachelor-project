@@ -103,3 +103,42 @@ button:hover {
   color: red;
   margin-top: 0.25rem;
 }
+.grouped-classes-sidebar {
+  background-color: #f9f9f9; /* light grey background */
+  border-right: 1px solid #ddd; /* light grey border to the right */
+  padding: 10px;
+  width: 200px; /* Adjust width as needed */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* subtle shadow for depth */
+  height: 100vh; /* Full height */
+  overflow-y: auto; /* Scrollable if content overflows */
+}
+
+.grouped-classes-sidebar h2 {
+  color: #333; /* Darker text for the title */
+  margin-bottom: 15px;
+  text-align: center; /* Center the title */
+}
+
+.grouped-classes-sidebar h3 {
+  color: #333; /* Dark text for year headings */
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.grouped-classes-sidebar ul {
+  list-style: none; /* Remove default list styling */
+  padding: 0;
+  margin: 0;
+}
+
+.grouped-classes-sidebar li {
+  background-color: #fff; /* white background for list items */
+  padding: 5px 10px; /* Padding inside each list item */
+  margin-bottom: 5px; /* Space between list items */
+  border: 1px solid #ddd; /* Border for each list item */
+  cursor: pointer; /* Pointer cursor on hover */
+}
+
+.grouped-classes-sidebar li:hover {
+  background-color: #e6e6e6; /* Light grey background on hover */
+}

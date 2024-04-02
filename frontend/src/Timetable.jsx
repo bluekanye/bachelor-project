@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import "./timetable.css";
 import Modal from "./modal";
@@ -10,7 +10,7 @@ const Timetable = () => {
     "Subjects",
     "Classrooms",
     "TeacherSubjects",
-    "ClassSchedules",
+    "ClassesWithSubjects",
   ]);
   const [selectedTable, setSelectedTable] = useState("");
   const [data, setData] = useState([]);
@@ -19,6 +19,10 @@ const Timetable = () => {
   const [errors, setErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
+  const [subjectFrequencies, setSubjectFrequencies] = useState({});
+  const [groupedClasses, setGroupedClasses] = useState({});
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [editingSubjectIndex, setEditingSubjectIndex] = useState(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -27,15 +31,15 @@ const Timetable = () => {
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
-  }, [selectedTable, setData]);
-  
+  }, [selectedTable, setData]);;
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]); 
+  }, [fetchData]);
 
   const handleShowModal = () => {
-    setIsEditing(false); 
-    setNewData({}); 
+    setIsEditing(false);
+    setNewData({});
     setShowModal(true);
   };
   const handleCloseModal = () => {
@@ -68,15 +72,19 @@ const Timetable = () => {
       formIsValid = false;
       tempErrors.subjectname = "Subject name is required";
     }
-    
-if (selectedTable.toLowerCase() === 'teachersubjects' && newData.subjects) {
-  const subjectsArray = newData.subjects.split(',').map(subject => subject.trim());
-  if (subjectsArray.length === 0 || subjectsArray.some(subject => subject === "")) {
-    formIsValid = false;
-    tempErrors.subjects = "At least one subject is required";
-  }
-}
 
+    if (selectedTable.toLowerCase() === "teachersubjects" && newData.subjects) {
+      const subjectsArray = newData.subjects
+        .split(",")
+        .map((subject) => subject.trim());
+      if (
+        subjectsArray.length === 0 ||
+        subjectsArray.some((subject) => subject === "")
+      ) {
+        formIsValid = false;
+        tempErrors.subjects = "At least one subject is required";
+      }
+    }
 
     setErrors(tempErrors);
     return formIsValid;
@@ -84,48 +92,68 @@ if (selectedTable.toLowerCase() === 'teachersubjects' && newData.subjects) {
 
   const handleAddNewData = async (event) => {
     event.preventDefault();
-  
+
     if (!validate()) {
       console.log("Validation failed.");
       return;
     }
-  
-    let apiUrl = `http://localhost:3001/api/${selectedTable.toLowerCase()}${isEditing ? `/${editingItemId}` : ''}`;
-    const method = isEditing ? 'put' : 'post';
-  
+
+    let apiUrl = `http://localhost:3001/api/${selectedTable.toLowerCase()}${
+      isEditing ? `/${editingItemId}` : ""
+    }`;
+    const method = isEditing ? "put" : "post";
+
     // If the selected table is 'teachersubjects', structure the data accordingly
     let payload = newData;
-    if (selectedTable.toLowerCase() === 'teachersubjects') {
+    if (selectedTable.toLowerCase() === "teachersubjects") {
       payload = {
-        teachername: newData.teachername, 
-        subjects: newData.subjects ? newData.subjects.split(',').map(subject => subject.trim()) : [], 
+        teachername: newData.teachername,
+        subjects: newData.subjects
+          ? newData.subjects.split(",").map((subject) => subject.trim())
+          : [],
       };
-      apiUrl = 'http://localhost:3001/api/teachersubjects'; 
+      apiUrl = "http://localhost:3001/api/teachersubjects";
     }
-    
+
     console.log("Sending data to API:", payload);
-  
+
     try {
       const response = await axios({
         method: method,
         url: apiUrl,
         data: payload,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
-  
-      console.log(response.data); 
-  
+
+      console.log(response.data);
+
       setNewData({});
       setShowModal(false);
       setIsEditing(false);
       setEditingItemId(null);
-  
+
       fetchData();
     } catch (error) {
-      console.error(`Error ${isEditing ? 'updating' : 'adding'} item:`, error.response ? error.response.data : error);
+      console.error(
+        `Error ${isEditing ? "updating" : "adding"} item:`,
+        error.response ? error.response.data : error
+      );
     }
   };
-  
+
+
+
+  const handleEditSubjectFrequency = (classItem, subjectItem) => {
+    setSelectedItem(classItem);
+    setEditingSubjectIndex(subjectItem.subjectid); 
+    setNewData({
+      ...newData,
+      subjectName: subjectItem.subjectname,
+      weekly_frequency: subjectItem.weekly_frequency || 0,
+    });
+    setShowModal(true);
+    setIsEditing(true); 
+  };
 
   const idFieldMap = {
     Teachers: "teacherid",
@@ -134,6 +162,7 @@ if (selectedTable.toLowerCase() === 'teachersubjects' && newData.subjects) {
     Classrooms: "classroomid",
     TeacherSubjects: "teachersubjectsid",
     ClassSchedules: "classscheduleid",
+    ClassesWithSubjects: 'id',
   };
 
   const handleDelete = async (item) => {
@@ -164,11 +193,19 @@ if (selectedTable.toLowerCase() === 'teachersubjects' && newData.subjects) {
   };
 
   const handleUpdate = (item) => {
-    const idField = idFieldMap[selectedTable]; 
-    setNewData(item); 
-    setEditingItemId(item[idField]); 
+    const idField = idFieldMap[selectedTable];
+    console.log(`Selected table: ${selectedTable}`);
+    console.log(`idField for the selected table: ${idField}`);
+    console.log(`ID to be used for editing: ${item[idField]}`);
+    if (item[idField] === undefined) {
+      console.error("ID is undefined, cannot proceed to edit.");
+      return; 
+    }
+    setNewData(item);
+    setEditingItemId(item[idField]);
     setIsEditing(true);
     setShowModal(true);
+    console.log(item);
   };
   
 
@@ -215,7 +252,8 @@ if (selectedTable.toLowerCase() === 'teachersubjects' && newData.subjects) {
                   </div>
                 </>
               )}
-              {selectedTable !== "TeacherSubjects" && data.length > 0 &&
+              {selectedTable !== "TeacherSubjects" &&
+                data.length > 0 &&
                 Object.keys(data[0]).map((key, index) => (
                   <div key={index}>
                     <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
@@ -233,34 +271,89 @@ if (selectedTable.toLowerCase() === 'teachersubjects' && newData.subjects) {
                 Cancel
               </button>
             </form>
+            {selectedTable === "ClassesWithSubjects" && selectedItem && (
+              <form onSubmit={handleAddNewData}>
+                <div>
+                  <label>Class Name</label>
+                  <input type="text" value={selectedItem.classname} disabled />
+                </div>
+                <div>
+                  <label>Subject Name</label>
+                  <input
+                    type="text"
+                    value={selectedItem.subjectname}
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label>Frequency</label>
+                  <input
+                    type="number"
+                    name="weekly_frequency"
+                    value={newData.weekly_frequency || ""}
+                    onChange={handleNewDataChange}
+                    className={errors.weekly_frequency ? "error" : ""}
+                  />
+                  {errors.weekly_frequency && <p>{errors.weekly_frequency}</p>}
+                </div>
+                <button type="submit">{isEditing ? "Update" : "Add"}</button>
+                <button type="button" onClick={handleCloseModal}>
+                  Cancel
+                </button>
+              </form>
+            )}
           </Modal>
         )}
         <table className="data-table">
           <thead>
             <tr>
               {data.length > 0 &&
-                Object.keys(data[0]).map((key, index) => <th key={index}>{key}</th>)}
+                Object.keys(data[0]).map((key, index) => (
+                  <th key={index}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </th>
+                ))}
               <th>Actions</th>
             </tr>
           </thead>
+        
           <tbody>
-            {data.map((item, index) => (
-              <tr key={index}>
-                {Object.values(item).map((value, idx) => (
-                  <td key={idx}>{value !== null ? value.toString() : ""}</td>
-                ))}
-                <td>
-                  <button onClick={() => handleUpdate(item)}>Update</button>
-                  <button onClick={() => handleDelete(item)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {selectedTable === "ClassesWithSubjects"
+    ? data.map((item) => (
+        
+        <tr key={item.id}>
+          <td>{item.id}</td>
+          <td>{item.classname}</td>
+          <td>{item.subjectname}</td>
+          <td>{item.weekly_frequency} x / week</td>
+          <td>
+            <button onClick={() => handleUpdate(item)}>Edit</button>
+            <button onClick={() => handleDelete(item)}>Delete</button>
+          </td>
+        </tr>
+      ))
+    : Array.isArray(data) &&
+      data.map((item) => (
+        <tr key={item.id}>
+          {Object.entries(item).map(([key, value], idx) => {
+            
+            if (key !== "subjects") {
+              return <td key={`${item.id}-${idx}`}>{value !== null ? value.toString() : ""}</td>;
+            }
+            return null;
+          })}
+          <td>
+            <button onClick={() => handleUpdate(item)}>Update</button>
+            <button onClick={() => handleDelete(item)}>Delete</button>
+          </td>
+        </tr>
+      ))}
+</tbody>
+
         </table>
       </main>
     </div>
   );
-                };
+};
 
 export default Timetable;
-

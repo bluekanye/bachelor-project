@@ -26,7 +26,7 @@ const allowedTables = [
   "Subjects",
   "Classrooms",
   "TeacherSubjects",
-  "ClassSchedules",
+  "ClassesWithSubjects",
 ];
 
 app.get("/api/tables", (req, res) => {
@@ -379,25 +379,7 @@ app.post("/api/teachersubjects", async (req, res) => {
   }
 });
 
-// app.post('/api/teachersubjects', async (req, res) => {
-//   const { teacherid, subjectid } = req.body;
-//   const subjectids = array.isarray(subjectid) ? subjectid : [subjectid];
-//   try {
-//     const results = await promise.all(
-//       subjectids.map(id => {
-//         return pool.query(
-//           'insert into teachersubjects (teacherid, subjectid) values ($1, $2) returning *',
-//           [teacherid, id]
-//         );
-//       })
-//     );
-//     const insertedrecords = results.map(result => result.rows[0]);
-//     res.json(insertedrecords);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send('server error');
-//   }
-// });
+
 
 app.delete("/api/teachersubjects", async (req, res) => {
   const { id } = req.params;
@@ -494,6 +476,92 @@ app.post("/api/login", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+
+
+
+
+
+
+app.get("/api/classeswithsubjects", async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        cs.id, 
+        cl.classname, 
+        su.subjectname, 
+        cs.weekly_frequency
+      FROM 
+        class_subjects cs
+        JOIN classes cl ON cs.classid = cl.classid
+        JOIN subjects su ON cs.subjectid = su.subjectid
+      ORDER BY
+        cl.classname,
+        su.subjectname;
+    `;
+    const { rows } = await pool.query(query);
+    res.json(rows); // Send back the rows as an array
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+// Create (POST) - Add a new subject frequency associated with a class
+app.post("/api/classeswithsubjects", async (req, res) => {
+  const { classid, subjectid, weekly_frequency } = req.body;
+  try {
+    const newFrequency = await pool.query(
+      "INSERT INTO class_subjects (classid, subjectid, weekly_frequency) VALUES ($1, $2, $3) RETURNING *",
+      [classid, subjectid, weekly_frequency]
+    );
+    res.status(201).json(newFrequency.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+
+app.put("/api/classeswithsubjects/:id", async (req, res) => {
+  const { id } = req.params;
+  const { weekly_frequency } = req.body;
+
+  // Validate id and weekly_frequency
+  const validId = parseInt(id);
+  const validWeeklyFrequency = parseInt(weekly_frequency);
+
+  console.log('ID:', id, 'Weekly Frequency:', weekly_frequency);
+  
+  if (isNaN(validId) || isNaN(validWeeklyFrequency)) {
+    return res.status(400).send("Invalid input syntax for type integer");
+  }
+
+  try {
+    const updateFrequency = await pool.query(
+      "UPDATE class_subjects SET weekly_frequency = $1 WHERE id = $2 RETURNING *",
+      [validWeeklyFrequency, validId]
+    );
+
+    if (updateFrequency.rows.length > 0) {
+      res.json(updateFrequency.rows[0]);
+    } else {
+      res.status(404).send("Subject frequency not found");
+    }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
+
+
 
 // Start server
 app.listen(PORT, () => {
