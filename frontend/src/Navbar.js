@@ -24,6 +24,9 @@ function Navbar() {
         <li className="nav-item">
           <Link to="/timetable">Create Timetable</Link>
         </li>
+        <li className="nav-item">
+          <Link to="/schedulegenerator">ScheduleGenerator</Link>
+        </li>
       </ul>
       {/* Dark Mode Toggle */}
       <DarkModeToggle />

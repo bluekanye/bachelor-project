@@ -7,6 +7,7 @@ import { Login } from "./Login";
 import { Register } from "./Register";
 import Timetable from "./Timetable";
 import "./App.css";
+import ScheduleGenerator from "./ScheduleGenerator";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/timetable" element={<Timetable />} />
+          <Route path="/schedulegenerator" element={<ScheduleGenerator />} />
         </Routes>
       </Router>
     </ThemeProvider>

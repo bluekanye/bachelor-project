@@ -33,9 +33,15 @@ const Timetable = () => {
     }
   }, [selectedTable, setData]);;
 
+  
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData]
+  
+  );
+
+  
 
   const handleShowModal = () => {
     setIsEditing(false);
