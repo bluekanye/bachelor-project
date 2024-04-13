@@ -1,0 +1,57 @@
+.schedule-container {
+    margin-top: 50px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .individual-schedule {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .individual-schedule h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .day-schedule {
+    margin-bottom: 20px;
+  }
+  
+  .day-schedule h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  .period {
+    margin-bottom: 10px;
+  }
+  
+  .period p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .period.free {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .period:not(.free) {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
+  
+  .period.free::before {
+    content: "Free Period";
+    font-style: italic;
+  }
+  

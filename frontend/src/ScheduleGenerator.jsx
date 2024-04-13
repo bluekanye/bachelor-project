@@ -20,50 +20,55 @@ const ScheduleGenerator = () => {
   const [schedule, setSchedule] = useState([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState('');
   const [availableSchedules, setAvailableSchedules] = useState([]);
+  const [generatedSchedules, setGeneratedSchedules] = useState([]);
 
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        // Órarend lekérése
-        const response = await axios.get("http://localhost:3001/api/timetable");
+        const response = await axios.get("http://localhost:3001/api/subjects");
+        console.log(response.data);
         setSchedule(response.data);
       } catch (error) {
         console.error("Hiba történt az órarend lekérésekor:", error);
       }
     };
-  
+
     const fetchAvailableSchedules = async () => {
       try {
-        // Osztályok lekérése az adatbázisból
-        const classesResponse = await axios.get("http://localhost:3001/api/classes");
-        const classNames = classesResponse.data.map(classObj => classObj.classname);
+        const response = await axios.get("http://localhost:3001/api/classes");
+        const classNames = response.data.map(classObj => classObj.classname);
         setAvailableSchedules(classNames);
       } catch (error) {
         console.error("Hiba történt az elérhető órarendek lekérésekor:", error);
       }
     };
 
-    // Órarend és osztályok lekérése az oldal betöltésekor
     fetchSchedule();
     fetchAvailableSchedules();
   }, []);
 
-  const generateSchedule = async () => {
-    try {
-      // Tantárgyak lekérése az adatbázisból
-      const subjectsResponse = await axios.get("http://localhost:3001/api/subjects");
-      const subjects = subjectsResponse.data;
+  const generateScheduleLogicBacktracking = () => {
+    // Egyszerűsítettük a függvényt a példa érdekében
+    // Tegyük fel, hogy minden osztálynak ugyanazok a tárgyai vannak
+    const newGeneratedSchedules = availableSchedules.map((className) => {
+      const newSchedule = days.reduce((scheduleByDay, day) => {
+        scheduleByDay[day] = timeSlots.reduce((scheduleByTime, timeSlot) => {
+          const randomSubjectIndex = Math.floor(Math.random() * schedule.length);
+          const randomSubject = schedule[randomSubjectIndex];
+          scheduleByTime[timeSlot] = randomSubject ? randomSubject.subject : "---";
+          return scheduleByTime;
+        }, {});
+        return scheduleByDay;
+      }, {});
+      return { className, schedule: newSchedule };
+    });
 
-      // Órarend generálása az adatok alapján...
-      // Ide írd a generálási logikát a lekért tantárgyak és osztályok alapján
-      // Például: const generatedSchedule = generateScheduleLogic(subjects, availableSchedules);
-    } catch (error) {
-      console.error("Hiba történt az órarend generálása során:", error);
-    }
+    setGeneratedSchedules(newGeneratedSchedules);
   };
 
-  const getScheduleForTimeSlot = (day, time) => {
-    return schedule.find((s) => s.dayofweek === day && s.starttime === time);
+  const getScheduleForClassAndTimeSlot = (className, day, timeSlot) => {
+    const classSchedule = generatedSchedules.find(sch => sch.className === className);
+    return classSchedule ? classSchedule.schedule[day][timeSlot] : "---";
   };
 
   const downloadPdf = async () => {
@@ -72,49 +77,47 @@ const ScheduleGenerator = () => {
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF();
     pdf.addImage(imgData, 'PNG', 0, 0);
-    pdf.save('schedule.pdf');
+    pdf.save('orarend.pdf');
   };
 
   return (
     <div className="schedule-generator-container">
       <h2 className="schedule-generator-title">Órarend</h2>
-
       <div className="schedule-selection">
         <select value={selectedScheduleId} onChange={(e) => setSelectedScheduleId(e.target.value)}>
           {availableSchedules.map((className, index) => (
             <option key={index} value={className}>{className}</option>
           ))}
         </select>
-        <button onClick={generateSchedule}>Órarend Generálás</button>
+        <button onClick={generateScheduleLogicBacktracking}>Órarend Generálás</button>
       </div>
-
       <div className="timetable-container">
-        <table className="timetable" id="timetable">
-          <thead>
-            <tr>
-              <th>Idő</th>
-              {days.map((day) => (
-                <th key={day}>{day}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {timeSlots.map((timeSlot) => (
-              <tr key={timeSlot}>
-                <td>{timeSlot}</td>
+        {selectedScheduleId && generatedSchedules.length > 0 && (
+          <table className="timetable" id="timetable">
+            <thead>
+              <tr>
+                <th>Idő</th>
                 {days.map((day) => (
-                  <td key={day}>
-                    {getScheduleForTimeSlot(day, timeSlot) || "---"}
-                  </td>
+                  <th key={day}>{day}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {timeSlots.map((timeSlot) => (
+                <tr key={timeSlot}>
+                  <td>{timeSlot}</td>
+                  {days.map((day) => (
+                    <td key={`${day}-${timeSlot}`}>
+                      {getScheduleForClassAndTimeSlot(selectedScheduleId, day, timeSlot)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-
       <button onClick={downloadPdf}>Letöltés PDF-ben</button>
-
     </div>
   );
 };

@@ -27,6 +27,9 @@ function Navbar() {
         <li className="nav-item">
           <Link to="/schedulegenerator">ScheduleGenerator</Link>
         </li>
+        <li className="nav-item">
+          <Link to="/backtracking">backtracking</Link>
+        </li>
       </ul>
       {/* Dark Mode Toggle */}
       <DarkModeToggle />
