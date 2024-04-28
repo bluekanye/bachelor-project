@@ -2,11 +2,9 @@ import React, { useState, useCallback } from "react";
 import "./backtrack.css";
 import { CLASS_SCHEDULES, DAYS_OF_WEEK, TIME_SLOTS, SUBJECTS } from "./data.js";
 
-
-
 const containerStyle = {
   display: "flex",
-  flexWrap: "wrap",  // Engedélyezi az elemek tördelését új sorba
+  flexWrap: "wrap", // Engedélyezi az elemek tördelését új sorba
   justifyContent: "space-between",
   gap: "20px",
   marginTop: "50px",
@@ -22,7 +20,6 @@ const individualScheduleStyle = {
   marginBottom: "20px",
 };
 
-
 function Backtrack() {
   const [schedules, setSchedules] = useState([]);
   const [numberOfSchedules, setNumberOfSchedules] = useState(1);
@@ -37,11 +34,11 @@ function Backtrack() {
 
   const generateSchedulesForAllClasses = useCallback(() => {
     const generatedSchedules = {};
-  
+
     CLASS_SCHEDULES.forEach((classObj) => {
       console.log("Subjects for class", classObj.name, classObj.subjects);
       const schedule = DAYS_OF_WEEK.map(() => TIME_SLOTS.map(() => null));
-  
+
       // Órarend generálása az adott osztályhoz
       if (backtrackSchedule(schedule, classObj.subjects, 0)) {
         generatedSchedules[classObj.name] = schedule;
@@ -49,21 +46,19 @@ function Backtrack() {
         console.log(`Could not finalize schedule for class ${classObj.name}`);
       }
     });
-  
+
     setOptimizedSchedules(generatedSchedules);
   }, []);
-  
 
-  
-  const maxPause = 1; 
+  const maxPause = 1;
 
-  const MAX_ATTEMPTS = 1000000; 
+  const MAX_ATTEMPTS = 1000;
 
   // Calculate maxOccurrence and minOccurrence once
   const maxOccurrence = Math.max(...SUBJECTS.map((subj) => subj.quantity));
   const minOccurrence = Math.min(...SUBJECTS.map((subj) => subj.quantity));
 
-  // Sort subjects based on their frequency (quantity)
+  // Tantárgyak rendezése gyakoriság alapján
   const sortedSubjects = SUBJECTS.sort((a, b) => b.quantity - a.quantity);
 
   // function backtrackSchedule(schedule,subjects, subjectIndex = 0, attempts = 0) {
@@ -101,68 +96,149 @@ function Backtrack() {
   //   return false;
   // }
 
-  function backtrackSchedule(
-    schedule,
-    subjects,
-    subjectIndex = 0,
-    attempts = 0
-  ) {
+  // function backtrackSchedule(
+  //   schedule,
+  //   subjects,
+  //   subjectIndex = 0,
+  //   attempts = 0
+  // ) {
+  //   if (subjectIndex >= subjects.length) {
+  //     console.log("All subjects placed successfully");
+  //     return true;
+  //   }
+
+  //   const subject = subjects[subjectIndex];
+  //   const neededOccurrences = subject.quantity;
+  //   let currentOccurrences = 0;
+
+  //   const shuffledDays = shuffle([...Array(DAYS_OF_WEEK.length).keys()]);
+  //   const shuffledSlots = shuffle([...Array(TIME_SLOTS.length).keys()]);
+
+  //   for (const teacher of subject.teachers) {
+  //     // Iteráljon a tárgyhoz rendelt tanárok között
+  //     for (const day of shuffledDays) {
+  //       for (const slot of shuffledSlots) {
+  //         console.log(
+  //           "Trying to place",
+  //           subject.name,
+  //           "with",
+  //           teacher,
+  //           "on day",
+  //           day,
+  //           "slot",
+  //           slot
+  //         );
+  //         if (
+  //           currentOccurrences < neededOccurrences &&
+  //           canPlaceSubject(schedule, day, slot, subject, teacher)
+  //         ) {
+  //           if (tryPlaceSubject(schedule, day, slot, subject, teacher)) {
+  //             console.log("Placed successfully");
+  //             currentOccurrences++;
+  //             if (currentOccurrences === neededOccurrences) {
+  //               console.log("All occurrences placed, moving to next subject");
+  //               if (backtrackSchedule(schedule, subjects, subjectIndex + 1)) {
+  //                 return true;
+  //               }
+  //               // Visszalépés
+  //               console.log("Backtracking from", subject.name);
+  //               removeSubject(schedule, day, slot);
+  //               currentOccurrences--;
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   if (++attempts > MAX_ATTEMPTS) {
+  //     console.log("Max attempts reached, returning false");
+  //     return false;
+  //   }
+
+  //   return false;
+  // }
+
+  // function backtrackSchedule(schedule, subjects, subjectIndex = 0) {
+  //   if (subjectIndex >= subjects.length) {
+  //     console.log("All subjects placed successfully");
+  //     return true;
+  //   }
+
+  //   const subject = subjects[subjectIndex];
+  //   const neededOccurrences = subject.quantity;
+  //   let currentOccurrences = 0;
+
+  //   const shuffledDays = shuffle([...Array(DAYS_OF_WEEK.length).keys()]);
+  //   const shuffledSlots = shuffle([...Array(TIME_SLOTS.length).keys()]);
+
+  //   for (const day of shuffledDays) {
+  //     for (const slot of shuffledSlots) {
+  //       if (currentOccurrences < neededOccurrences &&
+  //           canPlaceSubject(schedule, day, slot, subject, subject.teacher)) {
+  //         if (tryPlaceSubject(schedule, day, slot, subject)) {
+  //           console.log(`Placed ${subject.name} successfully with ${subject.teacher} on day ${day} slot ${slot}`);
+  //           currentOccurrences++;
+  //           if (currentOccurrences === neededOccurrences) {
+  //             console.log(`All occurrences of ${subject.name} placed, moving to next subject`);
+  //             if (backtrackSchedule(schedule, subjects, subjectIndex + 1)) {
+  //               return true;
+  //             }
+  //             // Backtracking
+  //             console.log(`Backtracking from ${subject.name}`);
+  //             removeSubject(schedule, day, slot);
+  //             currentOccurrences--;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   console.log(`Failed to place all occurrences of ${subject.name}`);
+  //   return false;
+  // }
+  function backtrackSchedule(schedule, subjects, subjectIndex = 0) {
     if (subjectIndex >= subjects.length) {
       console.log("All subjects placed successfully");
       return true;
     }
-
+  
+    // Rendezzük a tantárgyakat a legtöbbször előfordulók szerint
+    subjects.sort((a, b) => b.quantity - a.quantity);
+  
     const subject = subjects[subjectIndex];
     const neededOccurrences = subject.quantity;
     let currentOccurrences = 0;
-
+  
     const shuffledDays = shuffle([...Array(DAYS_OF_WEEK.length).keys()]);
     const shuffledSlots = shuffle([...Array(TIME_SLOTS.length).keys()]);
-
-    for (const teacher of subject.teachers) {
-      // Iteráljon a tárgyhoz rendelt tanárok között
-      for (const day of shuffledDays) {
-        for (const slot of shuffledSlots) {
-          console.log(
-            "Trying to place",
-            subject.name,
-            "with",
-            teacher,
-            "on day",
-            day,
-            "slot",
-            slot
-          );
+  
+    for (const day of shuffledDays) {
+      for (const slot of shuffledSlots) {
+        if (
+          currentOccurrences < neededOccurrences &&
+          canPlaceSubject(schedule, day, slot, subject, subject.teachers[0])
+        ) {
           if (
-            currentOccurrences < neededOccurrences &&
-            canPlaceSubject(schedule, day, slot, subject, teacher)
+            tryPlaceSubject(schedule, day, slot, subject, subject.teachers[0])
           ) {
-            if (tryPlaceSubject(schedule, day, slot, subject, teacher)) {
-              console.log("Placed successfully");
-              currentOccurrences++;
-              if (currentOccurrences === neededOccurrences) {
-                console.log("All occurrences placed, moving to next subject");
-                if (backtrackSchedule(schedule, subjects, subjectIndex + 1)) {
-                  return true;
-                }
-                // Visszalépés
-                console.log("Backtracking from", subject.name);
-                removeSubject(schedule, day, slot);
-                currentOccurrences--;
+            currentOccurrences++;
+            if (currentOccurrences === neededOccurrences) {
+              if (backtrackSchedule(schedule, subjects, subjectIndex + 1)) {
+                return true;
               }
+              removeSubject(schedule, day, slot);
+              currentOccurrences--;
             }
           }
         }
       }
     }
-
-    if (++attempts > MAX_ATTEMPTS) {
-      console.log("Max attempts reached, returning false");
-      return false;
-    }
-
+  
+    console.log(`Failed to place all occurrences of ${subject.name}`);
     return false;
   }
+  
 
   function canPlaceSubject(schedule, day, slot, subject, teacher) {
     if (!subject) {
@@ -171,11 +247,28 @@ function Backtrack() {
     }
 
     if (schedule[day][slot] !== null) return false;
-
-    // Check if the selected teacher is already booked for this slot
+    // Ellenőrizzük, hogy a kiválasztott tanár már foglalt-e ebben az idősávban
     if (schedule[day].some((period) => period && period.teacher === teacher)) {
+      console.log(
+        `Teacher ${teacher} is already booked at day ${day}, slot ${slot}`
+      );
       return false;
     }
+    // Ellenőrizzük, hogy a tanár már tanít-e másik osztálynak ugyanabban az idősávban
+  if (schedule.some((daySchedule) => daySchedule[slot] && daySchedule[slot].teacher === teacher)) {
+    console.log(`Conflict: Teacher ${teacher} is already teaching another class at slot ${slot} on day ${day}`);
+    return false;
+  }
+  // Ellenőrizd, hogy az előző napokon mennyi volt a terhelés
+  let previousLoad = 0;
+  for (let d = 0; d < day; d++) {
+    if (schedule[d][slot] && schedule[d][slot].teacher === teacher) {
+      previousLoad++;
+    }
+  }
+  if (previousLoad > 2) { // Ha a tanár túl sokszor tanított már ebben az idősávban
+    return false;
+  }
 
     // Ensure the subject frequency is maintained
     if (subject.quantity === maxOccurrence) {
@@ -202,11 +295,12 @@ function Backtrack() {
   }
 
   function tryPlaceSubject(schedule, day, slot, subject) {
-    // Randomly select a teacher from the list of teachers for the subject
-    const randomIndex = Math.floor(Math.random() * subject.teachers.length);
-    const selectedTeacher = subject.teachers[randomIndex]; // Ensure this is a string
-    if (canPlaceSubject(schedule, day, slot, subject, selectedTeacher)) {
-      schedule[day][slot] = { name: subject.name, teacher: selectedTeacher };
+    const teacher = subject.teacher; // Egyértelműen hozzárendelt tanár
+    if (canPlaceSubject(schedule, day, slot, subject, teacher)) {
+      schedule[day][slot] = { name: subject.name, teacher: teacher };
+      console.log(
+        `Placed ${subject.name} with ${teacher} at day ${day}, slot ${slot}`
+      );
       return true;
     }
     return false;
@@ -224,6 +318,9 @@ function Backtrack() {
     }
     return array;
   }
+  
+  
+  
 
   const calculateFitness = useCallback((schedule) => {
     let penalty = 0;
@@ -294,11 +391,8 @@ function Backtrack() {
       }
     }
 
-    
     return 1000 - penalty; // Minél alacsonyabb a büntetés, annál jobb az órarend
   }, []);
-
- 
 
   const generateNewState = useCallback((schedule) => {
     let newSchedule = JSON.parse(JSON.stringify(schedule)); // Mély másolat az órarendről
@@ -311,7 +405,6 @@ function Backtrack() {
       let slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
       let slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
 
-      
       while (slotIndex1 === slotIndex2) {
         slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
       }
@@ -339,54 +432,52 @@ function Backtrack() {
 
     // Azonos időpontban nem lehet ugyanaz a tanár két helyen
     if (period1.teacher === period2.teacher) {
-      console.log(
-        `Konfliktus: ${period1.teacher} egyszerre két helyen tanítana.`
-      );
-      return true;
+        console.log(`Konfliktus: ${period1.teacher} egyszerre két helyen tanítana.`);
+        return period1; // Visszatérünk a konfliktus által érintett periódussal
+    }
+
+    // Egy tanár ugyanabban az idősávban nem taníthat két különböző tárgyat
+    if (period1.teacher === period2.teacher && period1.name !== period2.name) {
+        console.log(`Konfliktus: ${period1.teacher} ugyanabban az idősávban két különböző tárgyat tanítana.`);
+        return period1; // Visszatérünk a konfliktus által érintett periódussal
     }
 
     // Ellenőrizzük, hogy a tanárok más idősávokban vannak-e már ezen a napon
-    if (
-      schedule[dayIndex].some(
-        (period) =>
-          period && period !== period1 && period.teacher === period1.teacher
-      )
-    ) {
-      console.log(
-        `Konfliktus: ${period1.teacher} már tanít ebben az idősávban másik osztályban.`
-      );
-      return true;
+    if (schedule[dayIndex].some(period => period && period !== period1 && period.teacher === period1.teacher)) {
+        console.log(`Konfliktus: ${period1.teacher} már tanít ebben az idősávban másik osztályban.`);
+        return period1; // Visszatérünk a konfliktus által érintett periódussal
     }
-    if (
-      schedule[dayIndex].some(
-        (period) =>
-          period && period !== period2 && period.teacher === period2.teacher
-      )
-    ) {
-      console.log(
-        `Konfliktus: ${period2.teacher} már tanít ebben az idősávban másik osztályban.`
-      );
-      return true;
+    if (schedule[dayIndex].some(period => period && period !== period2 && period.teacher === period2.teacher)) {
+        console.log(`Konfliktus: ${period2.teacher} már tanít ebben az idősávban másik osztályban.`);
+        return period2; // Visszatérünk a konfliktus által érintett periódussal
     }
 
     // Tanterem konfliktusok kezelése
     if (period1.room && period2.room && period1.room === period2.room) {
-      console.log(
-        `Konfliktus: Ugyanaz a terem (${period1.room}) két különböző osztály számára lenne foglalva.`
-      );
-      return true;
+        console.log(`Konfliktus: Ugyanaz a terem (${period1.room}) két különböző osztály számára lenne foglalva.`);
+        return period1; // Visszatérünk a konfliktus által érintett periódussal
     }
 
     // Tantárgyak ismétlődésének ellenőrzése
     if (period1.name === period2.name) {
-      console.log(
-        `Konfliktus: Ugyanaz a tantárgy (${period1.name}) kétszer lenne azonos idősávban.`
-      );
-      return true;
+        console.log(`Konfliktus: Ugyanaz a tantárgy (${period1.name}) kétszer lenne azonos idősávban.`);
+        return period1; // Visszatérünk a konfliktus által érintett periódussal
     }
 
+    // Bizonyos tárgyakat nem lehet ugyanabban az idősávban elhelyezni (itt adjuk meg ezeket a feltételeket)
+
+    // Példa: Ha a "Matek" tantárgyat tanító tanárt ugyanabban az idősávban próbálnák elhelyezni a "Fizika" tantárgyat
+    if ((period1.teacher === "Matek Tanár Neve" && period2.name === "Fizika") || (period2.teacher === "Matek Tanár Neve" && period1.name === "Fizika")) {
+        console.log(`Konfliktus: A "Matek" tanár nem taníthatja egyszerre a "Fizika" tantárgyat.`);
+        return period1; // Visszatérünk a konfliktus által érintett periódussal
+    }
+
+    // Egyéb ellenőrzések, szabályok hozzáadása szükség esetén
+
     return false; // Nincs konfliktus
-  };
+};
+
+
 
   const simulateAnnealing = useCallback(
     (schedule) => {

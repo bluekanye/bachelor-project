@@ -1,27 +1,42 @@
+// class Class {
+//     constructor(name, subjects) {
+//       this.name = name;
+//       this.subjects = subjects.map(subjectName => {
+//           const subject = SUBJECTS.find(subject => subject.name.toLowerCase() === subjectName.toLowerCase());
+//           if (!subject) {
+//               console.error(`No subject found for name: ${subjectName}`);
+//               return null;
+//           }
+//           return subject;
+//       }).filter(subject => subject != null); // Ez kihagyja azokat a tárgyakat, amelyek nem találhatók meg
+//     }
+// }
+
 class Class {
-    constructor(name, subjects) {
-      this.name = name;
-      this.subjects = subjects.map(subjectName => {
-          const subject = SUBJECTS.find(subject => subject.name.toLowerCase() === subjectName.toLowerCase());
-          if (!subject) {
-              console.error(`No subject found for name: ${subjectName}`);
-              return null;
-          }
-          return subject;
-      }).filter(subject => subject != null); // Ez kihagyja azokat a tárgyakat, amelyek nem találhatók meg
-    }
+  constructor(name, subjectTeacherPairs) {
+    this.name = name;
+    this.subjects = subjectTeacherPairs
+      .map(({ subjectName, teacherName }) => {
+        const subject = SUBJECTS.find(
+          (subject) => subject.name.toLowerCase() === subjectName.toLowerCase()
+        );
+        if (!subject) {
+          console.error(`No subject found for name: ${subjectName}`);
+          return null;
+        }
+        return { ...subject, teacher: teacherName };
+      })
+      .filter((subject) => subject != null); // Ez kihagyja azokat a tárgyakat, amelyek nem találhatók meg, és a tanár hozzárendeléseket is kezeli
+  }
 }
 
-  
-  
 class Subject {
-    constructor(name, teachers, quantity) {
-      this.name = name;
-      this.teachers = teachers; // Most már több tanár is tárolható egy tömbben
-      this.quantity = quantity;
-    }
+  constructor(name, teachers, quantity) {
+    this.name = name;
+    this.teachers = teachers; // Most már több tanár is tárolható egy tömbben
+    this.quantity = quantity;
   }
-  
+}
 
 // Constants
 export const DAYS_OF_WEEK = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
@@ -33,56 +48,273 @@ export const TIME_SLOTS = [
   "11:40-12:25",
   "12:35-13:20",
   "13:30-14:15",
-  "14:25-15:10",
-  
 ];
 // export const CLASS_SCHEDULES = ["1.A","1.B","2.A","2.B"];
 
-
 // Subjects
 export const SUBJECTS = [
-    new Subject("Matematika", ["Tanár 1", "tanar 2"], 2),
-    new Subject("Fizika", ["Tanár 1","tanar 2"], 1),
-    new Subject("Történelem", ["Tanár 3","toritanar"], 2),
-    new Subject("Földrajz", ["Tanár 8"], 1),
-    new Subject("Magyar", ["Tanár 4", "tanar 96","tanar 100"], 4),
-    new Subject("Szlovák", ["Tanár 4", "tanar 96","tanar 100"], 4),
-    new Subject("Angol", ["Tanár 6","tanar 220"], 3),
-    new Subject("Német", ["Tanár 6","tanar 220"], 3),
-    new Subject("Torna", ["Tanár 8","tanar 915"], 2),
-    new Subject("Informatika", ["Tanár 9","tanar info"], 2),
-    new Subject("Kémia", ["Tanár 10"], 1),
-    new Subject("Biológia", ["Tanár 11"], 1),
-    new Subject("Spanyol", ["Tanár 12"], 1),
-    new Subject("Francia", ["Tanár 13"], 1),
-    new Subject("Polgári", ["Tanár B"], 1),
-    new Subject("Ora1", ["Tanár 14"], 1),
-    new Subject("Ora2", ["Tanár 15"], 1),
-    new Subject("Ora3", ["Tanár 16"], 1),
-    new Subject("Ora4",[ "Tanár 17"], 1),
-    new Subject("Ora5", ["Tanár 18"], 1),
-    new Subject("Ora6", ["Tanár 19"], 1),
+  new Subject("Matematika", ["László Kovács", "Anna Szabó"], 3),
+  new Subject("Fizika", ["László Kovács", "Anna Szabó"], 1),
+  new Subject("Történelem", ["Gábor Tóth", "toritanar"], 2),
+  new Subject("Földrajz", ["Zsolt Farkas"], 1),
+  new Subject("Magyar", ["Éva Nagy", "István Horváth", "Mária Varga"], 3),
+  new Subject("Szlovák", ["Éva Nagy", "István Horváth", "Mária Varga"], 2),
+  new Subject("Angol", ["Péter Kiss", "Katalin Németh"], 3),
+  new Subject("Német", ["Péter Kiss", "Katalin Németh"], 2),
+  new Subject("Torna", ["Zsolt Farkas", "Judit Papp"], 2),
+  new Subject("Informatika", ["Pavol Grün", "Nagy Mária"], 1),
+  new Subject("Kémia", ["Tamás Balogh", "Bence Török"], 2),
+  new Subject("Biológia", ["Ingrid Zóld", "Zsolt Fóthy"], 1),
+  new Subject("Spanyol", ["Ádám Fehér", "Áron Katona"], 2),
+  new Subject("Francia", ["Gergely Fekete"], 1),
+  new Subject("Polgári", ["Gábor Tóth"], 1),
+  new Subject("Ora1", ["Krisztina Molnár"], 1),
+  // new Subject("Ora2", ["Zsolt Ferenczi"], 1),
+  // new Subject("Ora3", ["Bence Török"], 2),
+  // new Subject("Ora4", ["Zsolt Papp"], 1),
+  // new Subject("Ora5", ["Anna László"], 1),
+  // new Subject("Ora6", ["Krisztián Molnár"], 1),
 
-    // További tantárgyak...
-  ];
-  
-  // Classes
-  export const CLASS_SCHEDULES = [
-    new Class("1.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-    new Class("1.B",  ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-    new Class("2.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-    new Class("2.B",  ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("3.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("3.B", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("4.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("4.B", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("4.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("3.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("2.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     new Class("1.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
-     
-  ];
+  // További tantárgyak...
+];
 
+// Classes
+//oreg kod jol mukodik
+// export const CLASS_SCHEDULES = [
+//   new Class("1.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   new Class("1.B",  ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   new Class("2.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   new Class("2.B",  ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//    new Class("3.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//    new Class("3.B", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   //  new Class("4.A", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   //  new Class("4.B", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   //  new Class("4.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   //  new Class("3.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   //  new Class("2.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+//   //  new Class("1.C", ["Matematika", "Fizika", "Történelem", "Földrajz", "Magyar", "Szlovák", "Angol", "Német", "Torna", "Informatika", "Kémia", "Biológia", "Spanyol", "Francia", "Polgári","Ora1","ora2","ora3","ora4","ora5","ora6"]),
+
+// ];
+export const CLASS_SCHEDULES = [
+  new Class("1.A", [
+    { subjectName: "Matematika", teacherName: "László Kovács" },
+    { subjectName: "Fizika", teacherName: "László Kovács" },
+    { subjectName: "Történelem", teacherName: "Gábor Tóth" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Éva Nagy" },
+    { subjectName: "Szlovák", teacherName: "Éva Nagy" },
+    { subjectName: "Angol", teacherName: "Péter Kiss" },
+    { subjectName: "Német", teacherName: "Péter Kiss" },
+    { subjectName: "Torna", teacherName: "Zsolt Farkas" },
+    { subjectName: "Informatika", teacherName: "Pavol Grün" },
+    { subjectName: "Kémia", teacherName: "Tamás Balogh" },
+    { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
+    { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    // További tárgyak...
+  ]),
+  // További osztályok...
+  new Class("1.B", [
+    { subjectName: "Matematika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Történelem", teacherName: "toritanar" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "István Horváth" },
+    { subjectName: "Szlovák", teacherName: "István Horváth" },
+    { subjectName: "Angol", teacherName: "Katalin Németh" },
+    { subjectName: "Német", teacherName: "Katalin Németh" },
+    { subjectName: "Torna", teacherName: "Judit Papp" },
+    { subjectName: "Informatika", teacherName: "Nagy Mária" },
+    { subjectName: "Kémia", teacherName: "Bence Török" },
+    { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
+    { subjectName: "Spanyol", teacherName: "Áron Katona" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+  new Class("2.A", [
+    { subjectName: "Matematika", teacherName: "László Kovács" },
+    { subjectName: "Fizika", teacherName: "László Kovács" },
+    { subjectName: "Történelem", teacherName: "Gábor Tóth" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Éva Nagy" },
+    { subjectName: "Szlovák", teacherName: "Éva Nagy" },
+    { subjectName: "Angol", teacherName: "Péter Kiss" },
+    { subjectName: "Német", teacherName: "Péter Kiss" },
+    { subjectName: "Torna", teacherName: "Zsolt Farkas" },
+    { subjectName: "Informatika", teacherName: "Pavol Grün" },
+    { subjectName: "Kémia", teacherName: "Tamás Balogh" },
+    { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
+    { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+  new Class("2.B", [
+    { subjectName: "Matematika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Történelem", teacherName: "toritanar" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "István Horváth" },
+    { subjectName: "Szlovák", teacherName: "István Horváth" },
+    { subjectName: "Angol", teacherName: "Katalin Németh" },
+    { subjectName: "Német", teacherName: "Katalin Németh" },
+    { subjectName: "Torna", teacherName: "Judit Papp" },
+    { subjectName: "Informatika", teacherName: "Nagy Mária" },
+    { subjectName: "Kémia", teacherName: "Bence Török" },
+    { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
+    { subjectName: "Spanyol", teacherName: "Áron Katona" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+
+  new Class("3.A", [
+    { subjectName: "Matematika", teacherName: "László Kovács" },
+    { subjectName: "Fizika", teacherName: "László Kovács" },
+    { subjectName: "Történelem", teacherName: "Gábor Tóth" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Éva Nagy" },
+    { subjectName: "Szlovák", teacherName: "Éva Nagy" },
+    { subjectName: "Angol", teacherName: "Péter Kiss" },
+    { subjectName: "Német", teacherName: "Péter Kiss" },
+    { subjectName: "Torna", teacherName: "Zsolt Farkas" },
+    { subjectName: "Informatika", teacherName: "Pavol Grün" },
+    { subjectName: "Kémia", teacherName: "Tamás Balogh" },
+    { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
+    { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    // További tárgyak...
+  ]),
+
+  new Class("3.B", [
+    { subjectName: "Matematika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Történelem", teacherName: "toritanar" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Mária Varga" },
+    { subjectName: "Szlovák", teacherName: "Mária Varga" },
+    { subjectName: "Angol", teacherName: "Katalin Németh" },
+    { subjectName: "Német", teacherName: "Katalin Németh" },
+    { subjectName: "Torna", teacherName: "Judit Papp" },
+    { subjectName: "Informatika", teacherName: "Nagy Mária" },
+    { subjectName: "Kémia", teacherName: "Bence Török" },
+    { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
+    { subjectName: "Spanyol", teacherName: "Áron Katona" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+
+
+  new Class("3.C", [
+    { subjectName: "Matematika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Történelem", teacherName: "toritanar" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Mária Varga" },
+    { subjectName: "Szlovák", teacherName: "Mária Varga" },
+    { subjectName: "Angol", teacherName: "Katalin Németh" },
+    { subjectName: "Német", teacherName: "Katalin Németh" },
+    { subjectName: "Torna", teacherName: "Judit Papp" },
+    { subjectName: "Informatika", teacherName: "Nagy Mária" },
+    { subjectName: "Kémia", teacherName: "Bence Török" },
+    { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
+    { subjectName: "Spanyol", teacherName: "Áron Katona" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+
+  new Class("3.G", [
+    { subjectName: "Matematika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Történelem", teacherName: "toritanar" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Mária Varga" },
+    { subjectName: "Szlovák", teacherName: "Mária Varga" },
+    { subjectName: "Angol", teacherName: "Katalin Németh" },
+    { subjectName: "Német", teacherName: "Katalin Németh" },
+    { subjectName: "Torna", teacherName: "Judit Papp" },
+    { subjectName: "Informatika", teacherName: "Nagy Mária" },
+    { subjectName: "Kémia", teacherName: "Bence Török" },
+    { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
+    { subjectName: "Spanyol", teacherName: "Áron Katona" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+
+  new Class("3.F", [
+    { subjectName: "Matematika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Történelem", teacherName: "toritanar" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Mária Varga" },
+    { subjectName: "Szlovák", teacherName: "Mária Varga" },
+    { subjectName: "Angol", teacherName: "Katalin Németh" },
+    { subjectName: "Német", teacherName: "Katalin Németh" },
+    { subjectName: "Torna", teacherName: "Judit Papp" },
+    { subjectName: "Informatika", teacherName: "Nagy Mária" },
+    { subjectName: "Kémia", teacherName: "Bence Török" },
+    { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
+    { subjectName: "Spanyol", teacherName: "Áron Katona" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+  ]),
+
+
+];
 
 // // Subjects
 // export const SUBJECTS = [
