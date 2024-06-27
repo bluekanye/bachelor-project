@@ -439,7 +439,7 @@ function Backtrack() {
   }, [numberOfSchedules, optimizeSchedules]);
 
   return (
-    <div>
+    <div class="div-container">
       <h2>Generálás</h2>
       <label>
         Órarendek száma:

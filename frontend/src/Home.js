@@ -6,7 +6,7 @@ function Home() {
   return (
     <div className="home-container">
       <header className="home-header">
-        <h1>Üdvözöljük az Iskolai Órarend Készítőnél!</h1>
+        <h1>Üdvözöljük az Órarend készítő alkalmazásnál!</h1>
         <p>Könnyedén hozzon létre és kezeljen iskolai órarendeket.</p>
       </header>
 
@@ -14,21 +14,21 @@ function Home() {
         <h2>Főbb Jellemzők</h2>
         <ul>
           <li>Egyszerű és felhasználóbarát felület</li>
-          <li>Testre szabható órarend sablonok</li>
-          <li>Lehetőségek diákoknak és tanároknak egyaránt</li>
+          <li>Testreszabható adatbázis</li>
+          
         </ul>
       </section>
 
-      <div className="cta-section">
+      {/* <div className="cta-section">
         <Link to="/login" className="cta-button">
           Kezdjük el
         </Link>
-      </div>
+      </div> */}
 
-      {}
+      
 
       <footer className="home-footer">
-        <p>Footer</p>
+        <p>&copy; 2024 Órarend készítő alkalmazás. Minden jog fenntartva.</p>
         {}
       </footer>
     </div>

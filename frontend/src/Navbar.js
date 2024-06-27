@@ -15,20 +15,20 @@ function Navbar() {
       </div>
       <ul className="nav-menu">
         <li className="nav-item">
-          <Link to="/">Home</Link>
+          <Link to="/">Főoldal</Link>
         </li>
         {/* <li className="nav-item">
           <Link to="/login">Login/Registration</Link>
         </li> */}
         {/* New Timetable Link */}
         <li className="nav-item">
-          <Link to="/timetable">Create Timetable</Link>
+          <Link to="/timetable">Adatbázis szerkesztés</Link>
         </li>
         <li className="nav-item">
           <Link to="/schedulegenerator">ScheduleGenerator</Link>
         </li>
         <li className="nav-item">
-          <Link to="/backtracking">backtracking</Link>
+          <Link to="/backtracking">Backtracking</Link>
         </li>
       </ul>
       {/* Dark Mode Toggle */}
