@@ -69,11 +69,12 @@ export const SUBJECTS = [
   new Subject("Francia", ["Gergely Fekete"], 1),
   new Subject("Polgári", ["Gábor Tóth"], 1),
   new Subject("Ora1", ["Krisztina Molnár"], 1),
-  // new Subject("Ora2", ["Zsolt Ferenczi"], 1),
-  // new Subject("Ora3", ["Bence Török"], 2),
-  // new Subject("Ora4", ["Zsolt Papp"], 1),
-  // new Subject("Ora5", ["Anna László"], 1),
-  // new Subject("Ora6", ["Krisztián Molnár"], 1),
+  new Subject("Ora2", ["Zsolt Ferenczi"], 1),
+  new Subject("Ora3", ["Bence Török"], 2),
+  new Subject("Ora4", ["Zsolt Papp"], 1),
+  new Subject("Ora5", ["Anna László"], 1),
+  new Subject("Ora6", ["Krisztián Molnár"], 1),
+  new Subject("Hitoktatás", ["Szentlélek István"], 1),
 
   // További tantárgyak...
 ];
@@ -118,6 +119,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
     // További tárgyak...
   ]),
   // További osztályok...
@@ -143,6 +145,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
   new Class("2.A", [
     { subjectName: "Matematika", teacherName: "László Kovács" },
@@ -166,6 +169,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
   new Class("2.B", [
     { subjectName: "Matematika", teacherName: "Anna Szabó" },
@@ -189,6 +193,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
 
   new Class("3.A", [
@@ -213,6 +218,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
     // További tárgyak...
   ]),
 
@@ -238,6 +244,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
 
 
@@ -263,6 +270,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
 
   new Class("3.G", [
@@ -287,6 +295,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
 
   new Class("3.F", [
@@ -311,6 +320,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora4", teacherName: "Zsolt Papp" },
     { subjectName: "Ora5", teacherName: "Anna László" },
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
 
 

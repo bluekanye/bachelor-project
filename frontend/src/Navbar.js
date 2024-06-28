@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import DarkModeToggle from "./DarkModeToggle";
 import "./navbar.css";
 import logo from "./images/logo.png";
@@ -8,32 +8,30 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/">
-          <img src={logo} alt="Your Brand Logo" className="navbar-logo" />{" "}
-          {/* Use className for styling */}
-        </Link>
+        
+          <img src={logo} alt="Your Brand Logo" className="navbar-logo" />
+        
       </div>
       <ul className="nav-menu">
         <li className="nav-item">
-          <Link to="/">Főoldal</Link>
+          <NavLink to="/" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>Főoldal</NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to="/timetable" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>Adatbázis szerkesztés</NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to="/schedulegenerator" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>ScheduleGenerator</NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink to="/backtracking" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>Backtracking algoritmus</NavLink>
         </li>
         {/* <li className="nav-item">
           <Link to="/login">Login/Registration</Link>
         </li> */}
         {/* New Timetable Link */}
-        <li className="nav-item">
-          <Link to="/timetable">Adatbázis szerkesztés</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/schedulegenerator">ScheduleGenerator</Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/backtracking">Backtracking</Link>
-        </li>
       </ul>
       {/* Dark Mode Toggle */}
       <DarkModeToggle />
-      {}
       {/* <div className="navbar-toggler">
         <span></span> {/* For toggle icon, you can use an icon library or create a custom one */}
       {/* </div> */}
