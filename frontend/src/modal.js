@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './modal.css'; 
+import './modal.css';
 
 const Modal = ({ children, onClose }) => {
   return ReactDOM.createPortal(
@@ -9,7 +9,7 @@ const Modal = ({ children, onClose }) => {
         {children}
       </div>
     </div>,
-    document.getElementById('modal-root') 
+    document.getElementById('modal-root')
   );
 };
 

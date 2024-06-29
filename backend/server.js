@@ -3,9 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 
-
-
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 const pool = new Pool({
@@ -33,7 +30,7 @@ app.get("/api/tables", (req, res) => {
   res.json(allowedTables);
 });
 
-// Routes
+// Routes POST
 app.post("/api/teachers", async (req, res) => {
   console.log(req.body);
   const { name, email } = req.body;
@@ -190,6 +187,7 @@ app.get("/api/subjects", async (req, res) => {
   }
 });
 
+//POST tantárgyak
 app.post("/api/subjects", async (req, res) => {
   const { subjectname } = req.body;
   try {
@@ -304,30 +302,139 @@ app.delete("/api/classrooms/:id", async (req, res) => {
   }
 });
 
+// app.get("/api/teachersubjects", async (req, res) => {
+//   try {
+//     // Query to fetch all teacher-subject associations
+//     const { rows } = await pool.query(`
+//       SELECT 
+//         ts.teachersubjectsid,
+//         s.SubjectID, 
+//         s.SubjectName, 
+//         t.TeacherID, 
+//         t.Name AS TeacherName
+//       FROM 
+//         Subjects s
+//       JOIN 
+//         TeacherSubjects ts ON s.SubjectID = ts.SubjectID
+//       JOIN 
+//         Teachers t ON ts.TeacherID = t.TeacherID
+//     `);
+
+//     res.json(rows);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+
+// app.post("/api/teachersubjects", async (req, res) => {
+//   const { teachername, subjects } = req.body;
+//   if (!teachername || !subjects || !Array.isArray(subjects)) {
+//     return res.status(400).send("Invalid request body");
+//   }
+
+//   try {
+//     // Get the TeacherID for the provided teacher name
+//     const teacherResult = await pool.query(
+//       "SELECT TeacherID FROM Teachers WHERE name = $1",
+//       [teachername]
+//     );
+//     const teacherId = teacherResult.rows[0]?.teacherid;
+//     if (!teacherId) {
+//       return res.status(400).send("Teacher not found");
+//     }
+
+//     // Get the SubjectIDs for the provided subject names
+//     const subjectIds = await Promise.all(
+//       subjects.map(async (subjectname) => {
+//         const subjectResult = await pool.query(
+//           "SELECT SubjectID FROM Subjects WHERE SubjectName = $1",
+//           [subjectname]
+//         );
+//         const subjectId = subjectResult.rows[0]?.subjectid;
+//         if (!subjectId) {
+//           throw new Error(`Subject not found: ${subjectname}`);
+//         }
+//         return subjectId;
+//       })
+//     );
+
+//     // Insert the teacher-subject associations
+//     const results = await Promise.all(
+//       subjectIds.map((subjectid) => {
+//         return pool.query(
+//           "INSERT INTO TeacherSubjects (TeacherID, SubjectID) VALUES ($1, $2) RETURNING *",
+//           [teacherId, subjectid]
+//         );
+//       })
+//     );
+
+//     const insertedRecords = results.map((result) => result.rows[0]);
+//     res.json(insertedRecords);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send("Server error");
+//   }
+// });
+
+
+// app.delete("/api/teachersubjects/:id", async (req, res) => {
+//   const { teachersubjectsid } = req.params;
+//   console.log(
+//     `Received request to delete teacher-subject association: teachersubjectsid=${id}`
+//   );
+
+//   // Check if id is provided and valid
+//   if (!id) {
+//     return res.status(400).send("teachersubjectsid must be provided");
+//   }
+
+//   try {
+//     const { rows } = await pool.query(
+//       "DELETE FROM TeacherSubjects WHERE teachersubjectsid = $1 RETURNING *",
+//       [teachersubjectsid]
+//     );
+
+//     // Check if any record was deleted
+//     if (rows.length > 0) {
+//       console.log(`Deleted ${rows.length} record(s)`);
+//       res.json({ message: "Subject unassigned from teacher" });
+//     } else {
+//       // If no record was deleted, return a 404 status
+//       res.status(404).send("Assignment not found");
+//     }
+//   } catch (err) {
+//     console.error("Error deleting teacher-subject association:", err.message);
+//     res.status(500).send("Server error");
+//   }
+// });
 app.get("/api/teachersubjects", async (req, res) => {
   try {
-    // Query to fetch all teacher-subject associations
     const { rows } = await pool.query(`
       SELECT 
-        s.SubjectID, 
-        s.SubjectName, 
-        t.TeacherID, 
-        t.Name AS TeacherName, 
-        t.Email AS TeacherEmail
+        ts.teachersubjectsid,
+        ts.teacherid,
+        ts.subjectid,
+        t.name AS teachername,
+        s.subjectname
       FROM 
-        Subjects s
+        teachersubjects ts
       JOIN 
-        TeacherSubjects ts ON s.SubjectID = ts.SubjectID
+        teachers t ON ts.teacherid = t.teacherid
       JOIN 
-        Teachers t ON ts.TeacherID = t.TeacherID
+        subjects s ON ts.subjectid = s.subjectid
     `);
-
+    console.log(rows); // Log the result
     res.json(rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
   }
 });
+
+
+
 
 app.post("/api/teachersubjects", async (req, res) => {
   const { teachername, subjects } = req.body;
@@ -338,7 +445,7 @@ app.post("/api/teachersubjects", async (req, res) => {
   try {
     // Get the TeacherID for the provided teacher name
     const teacherResult = await pool.query(
-      "SELECT TeacherID FROM Teachers WHERE name = $1",
+      "SELECT teacherid FROM teachers WHERE name = $1",
       [teachername]
     );
     const teacherId = teacherResult.rows[0]?.teacherid;
@@ -350,7 +457,7 @@ app.post("/api/teachersubjects", async (req, res) => {
     const subjectIds = await Promise.all(
       subjects.map(async (subjectname) => {
         const subjectResult = await pool.query(
-          "SELECT SubjectID FROM Subjects WHERE SubjectName = $1",
+          "SELECT subjectid FROM subjects WHERE subjectname = $1",
           [subjectname]
         );
         const subjectId = subjectResult.rows[0]?.subjectid;
@@ -365,7 +472,7 @@ app.post("/api/teachersubjects", async (req, res) => {
     const results = await Promise.all(
       subjectIds.map((subjectid) => {
         return pool.query(
-          "INSERT INTO TeacherSubjects (TeacherID, SubjectID) VALUES ($1, $2) RETURNING *",
+          "INSERT INTO teachersubjects (teacherid, subjectid) VALUES ($1, $2) RETURNING *",
           [teacherId, subjectid]
         );
       })
@@ -379,22 +486,13 @@ app.post("/api/teachersubjects", async (req, res) => {
   }
 });
 
-
-
-app.delete("/api/teachersubjects", async (req, res) => {
+app.delete("/api/teachersubjects/:id", async (req, res) => {
   const { id } = req.params;
-  console.log(
-    `Received request to delete teacher-subject association: teachersubjectsid=${id}`
-  );
-
-  // Check if id is provided and valid
-  if (!id) {
-    return res.status(400).send("teachersubjectsid must be provided");
-  }
+  console.log(`Received request to delete teacher-subject association: teachersubjectsid=${id}`);
 
   try {
     const { rows } = await pool.query(
-      "DELETE FROM TeacherSubjects WHERE teachersubjectsid = $1 RETURNING *",
+      "DELETE FROM teachersubjects WHERE teachersubjectsid = $1 RETURNING *",
       [id]
     );
 
@@ -411,6 +509,64 @@ app.delete("/api/teachersubjects", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+app.put("/api/teachersubjects/:id", async (req, res) => {
+  const { id } = req.params; // A tanár-tárgy kapcsolat azonosítója
+  const { teachername, subjects } = req.body; // Feltételezve, hogy a tanár nevét és a tárgyak listáját küldjük
+
+  if (!teachername || !subjects || !Array.isArray(subjects)) {
+    return res.status(400).send("Invalid request body");
+  }
+
+  try {
+    // Get the TeacherID for the provided teacher name
+    const teacherResult = await pool.query(
+      "SELECT teacherid FROM teachers WHERE name = $1",
+      [teachername]
+    );
+    const teacherId = teacherResult.rows[0]?.teacherid;
+    if (!teacherId) {
+      return res.status(400).send("Teacher not found");
+    }
+
+    // Get the SubjectIDs for the provided subject names
+    const subjectIds = await Promise.all(
+      subjects.map(async (subjectname) => {
+        const subjectResult = await pool.query(
+          "SELECT subjectid FROM subjects WHERE subjectname = $1",
+          [subjectname]
+        );
+        const subjectId = subjectResult.rows[0]?.subjectid;
+        if (!subjectId) {
+          throw new Error(`Subject not found: ${subjectname}`);
+        }
+        return subjectId;
+      })
+    );
+
+    // Update the teacher-subject association
+    await pool.query(
+      "DELETE FROM teachersubjects WHERE teachersubjectsid = $1",
+      [id]
+    );
+
+    const results = await Promise.all(
+      subjectIds.map((subjectid) => {
+        return pool.query(
+          "INSERT INTO teachersubjects (teacherid, subjectid) VALUES ($1, $2) RETURNING *",
+          [teacherId, subjectid]
+        );
+      })
+    );
+
+    const updatedRecords = results.map((result) => result.rows[0]);
+    res.json(updatedRecords);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
 
 app.get("/api/class-schedules", async (req, res) => {
   try {
@@ -477,13 +633,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
 app.get("/api/classeswithsubjects", async (req, res) => {
   try {
     const query = `
@@ -508,9 +657,6 @@ app.get("/api/classeswithsubjects", async (req, res) => {
   }
 });
 
-
-
-
 // Create (POST) - Add a new subject frequency associated with a class
 app.post("/api/classeswithsubjects", async (req, res) => {
   const { classid, subjectid, weekly_frequency } = req.body;
@@ -526,7 +672,6 @@ app.post("/api/classeswithsubjects", async (req, res) => {
   }
 });
 
-
 app.put("/api/classeswithsubjects/:id", async (req, res) => {
   const { id } = req.params;
   const { weekly_frequency } = req.body;
@@ -535,8 +680,8 @@ app.put("/api/classeswithsubjects/:id", async (req, res) => {
   const validId = parseInt(id);
   const validWeeklyFrequency = parseInt(weekly_frequency);
 
-  console.log('ID:', id, 'Weekly Frequency:', weekly_frequency);
-  
+  console.log("ID:", id, "Weekly Frequency:", weekly_frequency);
+
   if (isNaN(validId) || isNaN(validWeeklyFrequency)) {
     return res.status(400).send("Invalid input syntax for type integer");
   }
@@ -557,11 +702,6 @@ app.put("/api/classeswithsubjects/:id", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
-
-
-
-
 
 // Start server
 app.listen(PORT, () => {

@@ -30,6 +30,9 @@ const Timetable = () => {
   const [errors, setErrors] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
+  const [teachers, setTeachers] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -40,7 +43,7 @@ const Timetable = () => {
     } catch (error) {
       console.error("Failed to fetch data:", error);
     }
-  }, [selectedTable, setData]);
+  }, [selectedTable]);
 
   useEffect(() => {
     if (selectedTable) {
@@ -48,14 +51,37 @@ const Timetable = () => {
     }
   }, [fetchData, selectedTable]);
 
+  useEffect(() => {
+    const fetchTeachersAndSubjects = async () => {
+      try {
+        const teachersResponse = await axios.get(
+          "http://localhost:3001/api/teachers"
+        );
+        setTeachers(teachersResponse.data);
+
+        const subjectsResponse = await axios.get(
+          "http://localhost:3001/api/subjects"
+        );
+        setSubjects(subjectsResponse.data);
+      } catch (error) {
+        console.error("Error fetching teachers or subjects:", error);
+      }
+    };
+
+    fetchTeachersAndSubjects();
+  }, []);
+
   const handleShowModal = () => {
     setIsEditing(false);
     setNewData({});
+    setSelectedSubjects([]);
     setShowModal(true);
   };
+
   const handleCloseModal = () => {
     setShowModal(false);
     setNewData({});
+    setSelectedSubjects([]);
     setIsEditing(false);
     setEditingItemId(null);
   };
@@ -63,6 +89,17 @@ const Timetable = () => {
   const handleNewDataChange = (event) => {
     const { name, value } = event.target;
     setNewData({ ...newData, [name]: value });
+  };
+
+  const handleSubjectChange = (event) => {
+    const value = event.target.value;
+    if (value && !selectedSubjects.includes(value)) {
+      setSelectedSubjects([...selectedSubjects, value]);
+    }
+  };
+
+  const handleSubjectRemove = (subject) => {
+    setSelectedSubjects(selectedSubjects.filter((s) => s !== subject));
   };
 
   const validate = () => {
@@ -84,17 +121,9 @@ const Timetable = () => {
       tempErrors.subjectname = "A tantárgy neve kötelező";
     }
 
-    if (selectedTable === "Tanár Tantárgyak" && newData.subjects) {
-      const subjectsArray = newData.subjects
-        .split(",")
-        .map((subject) => subject.trim());
-      if (
-        subjectsArray.length === 0 ||
-        subjectsArray.some((subject) => subject === "")
-      ) {
-        formIsValid = false;
-        tempErrors.subjects = "Legalább egy tantárgy kötelező";
-      }
+    if (selectedTable === "Tanár Tantárgyak" && selectedSubjects.length === 0) {
+      formIsValid = false;
+      tempErrors.subjects = "Legalább egy tantárgy kötelező";
     }
 
     setErrors(tempErrors);
@@ -109,20 +138,16 @@ const Timetable = () => {
       return;
     }
 
-    let apiUrl = `http://localhost:3001/api/${tableMapping[
-      selectedTable
-    ].toLowerCase()}${isEditing ? `/${editingItemId}` : ""}`;
+    let apiUrl = `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}${isEditing ? `/${editingItemId}` : ""}`;
     const method = isEditing ? "put" : "post";
 
     let payload = newData;
     if (selectedTable === "Tanár Tantárgyak") {
       payload = {
         teachername: newData.teachername,
-        subjects: newData.subjects
-          ? newData.subjects.split(",").map((subject) => subject.trim())
-          : [],
+        subjects: selectedSubjects,
       };
-      apiUrl = "http://localhost:3001/api/teachersubjects";
+      apiUrl = `http://localhost:3001/api/teachersubjects${isEditing ? `/${editingItemId}` : ""}`;
     }
 
     console.log("Adatok küldése az API-hoz:", payload);
@@ -141,7 +166,7 @@ const Timetable = () => {
       setShowModal(false);
       setIsEditing(false);
       setEditingItemId(null);
-
+      setSelectedSubjects([]);
       fetchData();
     } catch (error) {
       console.error(
@@ -162,6 +187,10 @@ const Timetable = () => {
     };
     const idField = idFieldMap[tableMapping[selectedTable]];
     const id = item[idField];
+    console.log(`item: ${JSON.stringify(item)}`);
+    console.log(`selectedTable: ${selectedTable}`);
+    console.log(`idField: ${idField}`);
+    console.log(`id: ${id}`);
 
     if (typeof id === "undefined") {
       console.error(
@@ -172,9 +201,7 @@ const Timetable = () => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:3001/api/${tableMapping[
-          selectedTable
-        ].toLowerCase()}/${id}`
+        `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}/${id}`
       );
 
       if (response.status === 200) {
@@ -198,13 +225,18 @@ const Timetable = () => {
       ClassesWithSubjects: "id",
     };
     const idField = idFieldMap[tableMapping[selectedTable]];
+
     if (item[idField] === undefined) {
       console.error("Az ID mező értéke undefined, nem lehet szerkeszteni.");
       return;
     }
-    setNewData(item);
-    setEditingItemId(item[idField]);
+
     setIsEditing(true);
+    setEditingItemId(item[idField]);
+    setNewData({
+      ...item, // Load all the current item data into newData state
+    });
+    setSelectedSubjects(item.subjectname ? item.subjectname.split(",").map(subject => subject.trim()) : []);
     setShowModal(true);
   };
 
@@ -230,24 +262,53 @@ const Timetable = () => {
                 <>
                   <div>
                     <label>Tanár neve</label>
-                    <input
-                      name="teachername"
-                      value={newData.teachername || ""}
-                      onChange={handleNewDataChange}
-                      className={errors.teachername ? "error" : ""}
-                    />
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="teachername"
+                        value={newData.teachername || ""}
+                        onChange={handleNewDataChange}
+                        className={errors.teachername ? "error" : ""}
+                      />
+                    ) : (
+                      <select
+                        name="teachername"
+                        value={newData.teachername || ""}
+                        onChange={handleNewDataChange}
+                        className={errors.teachername ? "error" : ""}
+                      >
+                        <option value="">Válasszon tanárt</option>
+                        {teachers.map((teacher) => (
+                          <option key={teacher.teacherid} value={teacher.name}>
+                            {teacher.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     {errors.teachername && <p>{errors.teachername}</p>}
                   </div>
                   <div>
-                    <label>Tantárgyak (vesszővel elválasztva)</label>
-                    <input
-                      name="subjects"
-                      value={newData.subjects || ""}
-                      onChange={handleNewDataChange}
+                    <label>Tantárgyak hozzáadása</label>
+                    <select
+                      value=""
+                      onChange={handleSubjectChange}
                       className={errors.subjects ? "error" : ""}
-                      placeholder="Tantárgy1, Tantárgy2, Tantárgy3"
-                    />
+                    >
+                      <option value="">Válasszon tantárgyat</option>
+                      {subjects.map((subject) => (
+                        <option key={subject.subjectid} value={subject.subjectname}>
+                          {subject.subjectname}
+                        </option>
+                      ))}
+                    </select>
                     {errors.subjects && <p>{errors.subjects}</p>}
+                    <div>
+                      {selectedSubjects.map((subject, index) => (
+                        <div key={index}>
+                          {subject} <button type="button" onClick={() => handleSubjectRemove(subject)}>Törlés</button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
@@ -266,7 +327,7 @@ const Timetable = () => {
                   </div>
                 ))}
               <button type="submit">
-                {isEditing ? "Frissítés" : "Hozzáadás"}
+                {isEditing ? "Szerkesztés" : "Hozzáadás"}
               </button>
               <button type="button" onClick={handleCloseModal}>
                 Mégse
@@ -277,17 +338,39 @@ const Timetable = () => {
         <table className="data-table">
           <thead>
             <tr>
-              {data.length > 0 &&
+              {selectedTable === "Tanár Tantárgyak" ? (
+                <>
+                  <th>TeacherSubjectID</th>
+                  <th>Teacher Name</th>
+                  <th>Subject Name</th>
+                </>
+              ) : (
+                data.length > 0 &&
                 Object.keys(data[0]).map((key, index) => (
                   <th key={index}>
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                   </th>
-                ))}
+                ))
+              )}
               <th>Műveletek</th>
             </tr>
           </thead>
           <tbody>
-            {selectedTable === "Osztályok Tantárgyakkal"
+            {selectedTable === "Tanár Tantárgyak"
+              ? data.map((item) => (
+                  <tr key={item.teachersubjectsid}>
+                    <td>{item.teachersubjectsid}</td>
+                    <td>{item.teachername}</td>
+                    <td>{item.subjectname}</td>
+                    <td>
+                      <button onClick={() => handleUpdate(item)}>
+                        Szerkesztés
+                      </button>
+                      <button onClick={() => handleDelete(item)}>Törlés</button>
+                    </td>
+                  </tr>
+                ))
+              : selectedTable === "Osztályok Tantárgyakkal"
               ? data.map((item) => (
                   <tr key={item.id}>
                     <td>{item.id}</td>
@@ -317,7 +400,7 @@ const Timetable = () => {
                     })}
                     <td>
                       <button onClick={() => handleUpdate(item)}>
-                        Frissítés
+                        Szerkesztés
                       </button>
                       <button onClick={() => handleDelete(item)}>Törlés</button>
                     </td>
