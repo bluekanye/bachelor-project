@@ -32,6 +32,7 @@ const Timetable = () => {
   const [editingItemId, setEditingItemId] = useState(null);
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
 
   const fetchData = useCallback(async () => {
@@ -52,7 +53,7 @@ const Timetable = () => {
   }, [fetchData, selectedTable]);
 
   useEffect(() => {
-    const fetchTeachersAndSubjects = async () => {
+    const fetchInitialData = async () => {
       try {
         const teachersResponse = await axios.get(
           "http://localhost:3001/api/teachers"
@@ -63,12 +64,17 @@ const Timetable = () => {
           "http://localhost:3001/api/subjects"
         );
         setSubjects(subjectsResponse.data);
+
+        const classesResponse = await axios.get(
+          "http://localhost:3001/api/classes"
+        );
+        setClasses(classesResponse.data);
       } catch (error) {
-        console.error("Error fetching teachers or subjects:", error);
+        console.error("Error fetching initial data:", error);
       }
     };
 
-    fetchTeachersAndSubjects();
+    fetchInitialData();
   }, []);
 
   const handleShowModal = () => {
@@ -148,6 +154,14 @@ const Timetable = () => {
         subjects: selectedSubjects,
       };
       apiUrl = `http://localhost:3001/api/teachersubjects${isEditing ? `/${editingItemId}` : ""}`;
+    } else if (selectedTable === "Osztályok Tantárgyakkal") {
+      const selectedClass = classes.find(c => c.classname === newData.classname);
+      const selectedSubject = subjects.find(s => s.subjectname === newData.subjectname);
+      payload = {
+        classid: selectedClass ? selectedClass.classid : null,
+        subjectid: selectedSubject ? selectedSubject.subjectid : null,
+        weekly_frequency: newData.weekly_frequency
+      };
     }
 
     console.log("Adatok küldése az API-hoz:", payload);
@@ -312,7 +326,56 @@ const Timetable = () => {
                   </div>
                 </>
               )}
-              {selectedTable !== "Tanár Tantárgyak" &&
+              {selectedTable === "Osztályok Tantárgyakkal" && (
+                <>
+                  <div>
+                    <label>Osztály neve</label>
+                    <select
+                      name="classname"
+                      value={newData.classname || ""}
+                      onChange={handleNewDataChange}
+                      className={errors.classname ? "error" : ""}
+                    >
+                      <option value="">Válasszon osztályt</option>
+                      {classes.map((cls) => (
+                        <option key={cls.classid} value={cls.classname}>
+                          {cls.classname}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.classname && <p>{errors.classname}</p>}
+                  </div>
+                  <div>
+                    <label>Tantárgy neve</label>
+                    <select
+                      name="subjectname"
+                      value={newData.subjectname || ""}
+                      onChange={handleNewDataChange}
+                      className={errors.subjectname ? "error" : ""}
+                    >
+                      <option value="">Válasszon tantárgyat</option>
+                      {subjects.map((subject) => (
+                        <option key={subject.subjectid} value={subject.subjectname}>
+                          {subject.subjectname}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.subjectname && <p>{errors.subjectname}</p>}
+                  </div>
+                  <div>
+                    <label>Heti óraszám</label>
+                    <input
+                      type="number"
+                      name="weekly_frequency"
+                      value={newData.weekly_frequency || ""}
+                      onChange={handleNewDataChange}
+                      className={errors.weekly_frequency ? "error" : ""}
+                    />
+                    {errors.weekly_frequency && <p>{errors.weekly_frequency}</p>}
+                  </div>
+                </>
+              )}
+              {selectedTable !== "Tanár Tantárgyak" && selectedTable !== "Osztályok Tantárgyakkal" &&
                 data.length > 0 &&
                 Object.keys(data[0]).map((key, index) => (
                   <div key={index}>
@@ -327,7 +390,7 @@ const Timetable = () => {
                   </div>
                 ))}
               <button type="submit">
-                {isEditing ? "Szerkesztés" : "Hozzáadás"}
+                {isEditing ? "Frissítés" : "Hozzáadás"}
               </button>
               <button type="button" onClick={handleCloseModal}>
                 Mégse
@@ -345,12 +408,21 @@ const Timetable = () => {
                   <th>Subject Name</th>
                 </>
               ) : (
-                data.length > 0 &&
-                Object.keys(data[0]).map((key, index) => (
-                  <th key={index}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </th>
-                ))
+                selectedTable === "Osztályok Tantárgyakkal" ? (
+                  <>
+                    <th>ID</th>
+                    <th>Osztály</th>
+                    <th>Tantárgy</th>
+                    <th>Heti óraszám</th>
+                  </>
+                ) : (
+                  data.length > 0 &&
+                  Object.keys(data[0]).map((key, index) => (
+                    <th key={index}>
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </th>
+                  ))
+                )
               )}
               <th>Műveletek</th>
             </tr>
@@ -400,7 +472,7 @@ const Timetable = () => {
                     })}
                     <td>
                       <button onClick={() => handleUpdate(item)}>
-                        Szerkesztés
+                        Frissítés
                       </button>
                       <button onClick={() => handleDelete(item)}>Törlés</button>
                     </td>

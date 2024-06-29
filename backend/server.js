@@ -707,3 +707,23 @@ app.put("/api/classeswithsubjects/:id", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Delete (DELETE) - Remove a subject frequency associated with a class
+app.delete("/api/classeswithsubjects/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleteFrequency = await pool.query(
+      "DELETE FROM class_subjects WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (deleteFrequency.rows.length === 0) {
+      return res.status(404).send("Class-Subject association not found");
+    }
+
+    res.json(deleteFrequency.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
