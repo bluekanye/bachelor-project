@@ -184,7 +184,7 @@ const Timetable = () => {
       fetchData();
     } catch (error) {
       console.error(
-        `Hiba az elem ${isEditing ? "frissítése" : "hozzáadása"} közben:`,
+        `Hiba az elem ${isEditing ? "szerksztése" : "hozzáadása"} közben:`,
         error.response ? error.response.data : error
       );
     }
@@ -248,7 +248,7 @@ const Timetable = () => {
     setIsEditing(true);
     setEditingItemId(item[idField]);
     setNewData({
-      ...item, // Load all the current item data into newData state
+      ...item, // Az összes mezőt beállítjuk az adatokból
     });
     setSelectedSubjects(item.subjectname ? item.subjectname.split(",").map(subject => subject.trim()) : []);
     setShowModal(true);
@@ -390,7 +390,7 @@ const Timetable = () => {
                   </div>
                 ))}
               <button type="submit">
-                {isEditing ? "Frissítés" : "Hozzáadás"}
+                {isEditing ? "Szerkesztem" : "Hozzáadás"}
               </button>
               <button type="button" onClick={handleCloseModal}>
                 Mégse
@@ -403,9 +403,9 @@ const Timetable = () => {
             <tr>
               {selectedTable === "Tanár Tantárgyak" ? (
                 <>
-                  <th>TeacherSubjectID</th>
-                  <th>Teacher Name</th>
-                  <th>Subject Name</th>
+                  <th>Tanár + tantárgy azonosítója</th>
+                  <th>Tanár neve</th>
+                  <th>Tantárgy</th>
                 </>
               ) : (
                 selectedTable === "Osztályok Tantárgyakkal" ? (
@@ -472,7 +472,7 @@ const Timetable = () => {
                     })}
                     <td>
                       <button onClick={() => handleUpdate(item)}>
-                        Frissítés
+                        Szerkesztés
                       </button>
                       <button onClick={() => handleDelete(item)}>Törlés</button>
                     </td>
