@@ -49,7 +49,7 @@ app.post("/api/teachers", async (req, res) => {
 // Read (GET) - Get all teachers
 app.get("/api/teachers", async (req, res) => {
   try {
-    const { rows } = await pool.query("SELECT * FROM Teachers");
+    const { rows } = await pool.query("SELECT * FROM Teachers ORDER BY Name");
     res.json(rows);
   } catch (err) {
     console.error(err.message);
@@ -634,6 +634,8 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.get("/api/classeswithsubjects", async (req, res) => {
+
+
   try {
     const query = `
       SELECT 
@@ -657,7 +659,8 @@ app.get("/api/classeswithsubjects", async (req, res) => {
   }
 });
 
-// Create (POST) - Add a new subject frequency associated with a class
+
+
 app.post("/api/classeswithsubjects", async (req, res) => {
   const { classid, subjectid, weekly_frequency } = req.body;
   try {
@@ -722,6 +725,29 @@ app.delete("/api/classeswithsubjects/:id", async (req, res) => {
     }
 
     res.json(deleteFrequency.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+// Get all classes grouped by year
+app.get("/api/classesByYear", async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT classid, classname
+      FROM classes
+      ORDER BY classname
+    `);
+    const classesByYear = rows.reduce((acc, cls) => {
+      const year = cls.classname.charAt(0); // feltételezzük, hogy az első karakter az évfolyam
+      if (!acc[year]) {
+        acc[year] = [];
+      }
+      acc[year].push(cls);
+      return acc;
+    }, {});
+    res.json(classesByYear);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");

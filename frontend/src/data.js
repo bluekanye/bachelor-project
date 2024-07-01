@@ -38,6 +38,7 @@ class Subject {
   }
 }
 
+
 // Constants
 export const DAYS_OF_WEEK = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
 export const TIME_SLOTS = [
@@ -48,12 +49,13 @@ export const TIME_SLOTS = [
   "11:40-12:25",
   "12:35-13:20",
   "13:30-14:15",
+  
 ];
 // export const CLASS_SCHEDULES = ["1.A","1.B","2.A","2.B"];
 
 // Subjects
 export const SUBJECTS = [
-  new Subject("Matematika", ["László Kovács", "Anna Szabó"], 3),
+  new Subject("Matematika", ["László Kovács", "Anna Szabó"],2),
   new Subject("Fizika", ["László Kovács", "Anna Szabó"], 1),
   new Subject("Történelem", ["Gábor Tóth", "toritanar"], 2),
   new Subject("Földrajz", ["Zsolt Farkas"], 1),
@@ -67,10 +69,10 @@ export const SUBJECTS = [
   new Subject("Biológia", ["Ingrid Zóld", "Zsolt Fóthy"], 1),
   new Subject("Spanyol", ["Ádám Fehér", "Áron Katona"], 2),
   new Subject("Francia", ["Gergely Fekete"], 1),
-  new Subject("Polgári", ["Gábor Tóth"], 1),
+  new Subject("Polgári", ["Ádám Tóth"], 1),
   new Subject("Ora1", ["Krisztina Molnár"], 1),
   new Subject("Ora2", ["Zsolt Ferenczi"], 1),
-  new Subject("Ora3", ["Bence Török"], 2),
+  new Subject("Ora3", ["Ferenc Török"], 1),
   new Subject("Ora4", ["Zsolt Papp"], 1),
   new Subject("Ora5", ["Anna László"], 1),
   new Subject("Ora6", ["Krisztián Molnár"], 1),
@@ -112,7 +114,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
     { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -138,7 +140,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
     { subjectName: "Spanyol", teacherName: "Áron Katona" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -162,7 +164,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
     { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -186,7 +188,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
     { subjectName: "Spanyol", teacherName: "Áron Katona" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -211,7 +213,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
     { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -223,8 +225,8 @@ export const CLASS_SCHEDULES = [
   ]),
 
   new Class("3.B", [
-    { subjectName: "Matematika", teacherName: "Anna Szabó" },
-    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Matematika", teacherName: "László Kovács" },
+    { subjectName: "Fizika", teacherName: "László Kovács" },
     { subjectName: "Történelem", teacherName: "toritanar" },
     { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
     { subjectName: "Magyar", teacherName: "Mária Varga" },
@@ -237,7 +239,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
     { subjectName: "Spanyol", teacherName: "Áron Katona" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -250,7 +252,7 @@ export const CLASS_SCHEDULES = [
 
   new Class("3.C", [
     { subjectName: "Matematika", teacherName: "Anna Szabó" },
-    { subjectName: "Fizika", teacherName: "Anna Szabó" },
+    { subjectName: "Fizika", teacherName: "László Kovács" },
     { subjectName: "Történelem", teacherName: "toritanar" },
     { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
     { subjectName: "Magyar", teacherName: "Mária Varga" },
@@ -263,7 +265,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
     { subjectName: "Spanyol", teacherName: "Áron Katona" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -288,7 +290,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
     { subjectName: "Spanyol", teacherName: "Áron Katona" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -313,7 +315,7 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Biológia", teacherName: "Zsolt Fóthy" },
     { subjectName: "Spanyol", teacherName: "Áron Katona" },
     { subjectName: "Francia", teacherName: "Gergely Fekete" },
-    { subjectName: "Polgári", teacherName: "Gábor Tóth" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
     { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
     { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
     { subjectName: "Ora3", teacherName: "Bence Török" },
@@ -322,7 +324,31 @@ export const CLASS_SCHEDULES = [
     { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
     { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
   ]),
-
+  new Class("4.A", [
+    { subjectName: "Matematika", teacherName: "László Kovács" },
+    { subjectName: "Fizika", teacherName: "László Kovács" },
+    { subjectName: "Történelem", teacherName: "Gábor Tóth" },
+    { subjectName: "Földrajz", teacherName: "Zsolt Farkas" },
+    { subjectName: "Magyar", teacherName: "Éva Nagy" },
+    { subjectName: "Szlovák", teacherName: "Éva Nagy" },
+    { subjectName: "Angol", teacherName: "Péter Kiss" },
+    { subjectName: "Német", teacherName: "Péter Kiss" },
+    { subjectName: "Torna", teacherName: "Zsolt Farkas" },
+    { subjectName: "Informatika", teacherName: "Pavol Grün" },
+    { subjectName: "Kémia", teacherName: "Tamás Balogh" },
+    { subjectName: "Biológia", teacherName: "Ingrid Zóld" },
+    { subjectName: "Spanyol", teacherName: "Ádám Fehér" },
+    { subjectName: "Francia", teacherName: "Gergely Fekete" },
+    { subjectName: "Polgári", teacherName: "Ádám Tóth" },
+    { subjectName: "Ora1", teacherName: "Krisztina Molnár" },
+    { subjectName: "Ora2", teacherName: "Zsolt Ferenczi" },
+    { subjectName: "Ora3", teacherName: "Bence Török" },
+    { subjectName: "Ora4", teacherName: "Zsolt Papp" },
+    { subjectName: "Ora5", teacherName: "Anna László" },
+    { subjectName: "Ora6", teacherName: "Krisztián Molnár" },
+    { subjectName: "Hitoktatás", teacherName: "Szentlélek István" },
+    // További tárgyak...
+  ]),
 
 ];
 
