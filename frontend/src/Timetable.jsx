@@ -144,24 +144,29 @@ const Timetable = () => {
       return;
     }
 
-    let apiUrl = `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}${isEditing ? `/${editingItemId}` : ""}`;
+    let apiUrl = `http://localhost:3001/api/${tableMapping[
+      selectedTable
+    ].toLowerCase()}${isEditing ? `/${editingItemId}` : ""}`;
     const method = isEditing ? "put" : "post";
 
-    let payload = newData;
-    if (selectedTable === "Tanár Tantárgyak") {
-      payload = {
-        teachername: newData.teachername,
-        subjects: selectedSubjects,
-      };
-      apiUrl = `http://localhost:3001/api/teachersubjects${isEditing ? `/${editingItemId}` : ""}`;
-    } else if (selectedTable === "Osztályok Tantárgyakkal") {
-      const selectedClass = classes.find(c => c.classname === newData.classname);
-      const selectedSubject = subjects.find(s => s.subjectname === newData.subjectname);
+    let payload;
+    if (selectedTable === "Osztályok Tantárgyakkal") {
+      const selectedClass = classes.find(
+        (c) => c.classname === newData.classname
+      );
+      const selectedSubject = subjects.find(
+        (s) => s.subjectname === newData.subjectname
+      );
+      const selectedTeacherId = newData.teacher_id;
+
       payload = {
         classid: selectedClass ? selectedClass.classid : null,
         subjectid: selectedSubject ? selectedSubject.subjectid : null,
-        weekly_frequency: newData.weekly_frequency
+        teacher_id: selectedTeacherId,
+        weekly_frequency: newData.weekly_frequency,
       };
+    } else {
+      payload = { ...newData };
     }
 
     console.log("Adatok küldése az API-hoz:", payload);
@@ -184,7 +189,7 @@ const Timetable = () => {
       fetchData();
     } catch (error) {
       console.error(
-        `Hiba az elem ${isEditing ? "szerksztése" : "hozzáadása"} közben:`,
+        `Hiba az elem ${isEditing ? "szerkesztése" : "hozzáadása"} közben:`,
         error.response ? error.response.data : error
       );
     }
@@ -201,10 +206,6 @@ const Timetable = () => {
     };
     const idField = idFieldMap[tableMapping[selectedTable]];
     const id = item[idField];
-    console.log(`item: ${JSON.stringify(item)}`);
-    console.log(`selectedTable: ${selectedTable}`);
-    console.log(`idField: ${idField}`);
-    console.log(`id: ${id}`);
 
     if (typeof id === "undefined") {
       console.error(
@@ -215,7 +216,9 @@ const Timetable = () => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}/${id}`
+        `http://localhost:3001/api/${tableMapping[
+          selectedTable
+        ].toLowerCase()}/${id}`
       );
 
       if (response.status === 200) {
@@ -248,9 +251,13 @@ const Timetable = () => {
     setIsEditing(true);
     setEditingItemId(item[idField]);
     setNewData({
-      ...item, // Az összes mezőt beállítjuk az adatokból
+      ...item,
     });
-    setSelectedSubjects(item.subjectname ? item.subjectname.split(",").map(subject => subject.trim()) : []);
+    setSelectedSubjects(
+      item.subjectname
+        ? item.subjectname.split(",").map((subject) => subject.trim())
+        : []
+    );
     setShowModal(true);
   };
 
@@ -310,7 +317,10 @@ const Timetable = () => {
                     >
                       <option value="">Válasszon tantárgyat</option>
                       {subjects.map((subject) => (
-                        <option key={subject.subjectid} value={subject.subjectname}>
+                        <option
+                          key={subject.subjectid}
+                          value={subject.subjectname}
+                        >
                           {subject.subjectname}
                         </option>
                       ))}
@@ -319,7 +329,13 @@ const Timetable = () => {
                     <div>
                       {selectedSubjects.map((subject, index) => (
                         <div key={index}>
-                          {subject} <button type="button" onClick={() => handleSubjectRemove(subject)}>Törlés</button>
+                          {subject}{" "}
+                          <button
+                            type="button"
+                            onClick={() => handleSubjectRemove(subject)}
+                          >
+                            Törlés
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -355,12 +371,33 @@ const Timetable = () => {
                     >
                       <option value="">Válasszon tantárgyat</option>
                       {subjects.map((subject) => (
-                        <option key={subject.subjectid} value={subject.subjectname}>
+                        <option
+                          key={subject.subjectid}
+                          value={subject.subjectname}
+                        >
                           {subject.subjectname}
                         </option>
                       ))}
                     </select>
                     {errors.subjectname && <p>{errors.subjectname}</p>}
+                  </div>
+                  <div>
+                    <label>Tanár</label>
+                    <select
+                      name="teacher_id"
+                      value={newData.teacher_id || ""}
+                      onChange={handleNewDataChange}
+                    >
+                      <option value="">Válasszon tanárt</option>
+                      {teachers.map((teacher) => (
+                        <option
+                          key={teacher.teacherid}
+                          value={teacher.teacherid}
+                        >
+                          {teacher.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label>Heti óraszám</label>
@@ -371,11 +408,15 @@ const Timetable = () => {
                       onChange={handleNewDataChange}
                       className={errors.weekly_frequency ? "error" : ""}
                     />
-                    {errors.weekly_frequency && <p>{errors.weekly_frequency}</p>}
+                    {errors.weekly_frequency && (
+                      <p>{errors.weekly_frequency}</p>
+                    )}
                   </div>
                 </>
               )}
-              {selectedTable !== "Tanár Tantárgyak" && selectedTable !== "Osztályok Tantárgyakkal" &&
+
+              {selectedTable !== "Tanár Tantárgyak" &&
+                selectedTable !== "Osztályok Tantárgyakkal" &&
                 data.length > 0 &&
                 Object.keys(data[0]).map((key, index) => (
                   <div key={index}>
@@ -407,22 +448,21 @@ const Timetable = () => {
                   <th>Tanár neve</th>
                   <th>Tantárgy</th>
                 </>
+              ) : selectedTable === "Osztályok Tantárgyakkal" ? (
+                <>
+                  <th>ID</th>
+                  <th>Osztály</th>
+                  <th>Tantárgy</th>
+                  <th>Tanár</th>
+                  <th>Heti óraszám</th>
+                </>
               ) : (
-                selectedTable === "Osztályok Tantárgyakkal" ? (
-                  <>
-                    <th>ID</th>
-                    <th>Osztály</th>
-                    <th>Tantárgy</th>
-                    <th>Heti óraszám</th>
-                  </>
-                ) : (
-                  data.length > 0 &&
-                  Object.keys(data[0]).map((key, index) => (
-                    <th key={index}>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </th>
-                  ))
-                )
+                data.length > 0 &&
+                Object.keys(data[0]).map((key, index) => (
+                  <th key={index}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </th>
+                ))
               )}
               <th>Műveletek</th>
             </tr>
@@ -448,6 +488,7 @@ const Timetable = () => {
                     <td>{item.id}</td>
                     <td>{item.classname}</td>
                     <td>{item.subjectname}</td>
+                    <td>{item.teacher_name || "Nincs megadva"}</td> {/* Itt jelenik meg a tanár neve */}
                     <td>{item.weekly_frequency} x / hét</td>
                     <td>
                       <button onClick={() => handleUpdate(item)}>

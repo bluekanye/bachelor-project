@@ -634,19 +634,19 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.get("/api/classeswithsubjects", async (req, res) => {
-
-
   try {
     const query = `
       SELECT 
-        cs.id, 
-        cl.classname, 
-        su.subjectname, 
+        cs.id,
+        cl.classname,
+        su.subjectname,
+        t.name as teacher_name,
         cs.weekly_frequency
       FROM 
         class_subjects cs
         JOIN classes cl ON cs.classid = cl.classid
         JOIN subjects su ON cs.subjectid = su.subjectid
+        JOIN teachers t ON cs.teacher_id = t.teacherid
       ORDER BY
         cl.classname,
         su.subjectname;
@@ -661,50 +661,52 @@ app.get("/api/classeswithsubjects", async (req, res) => {
 
 
 
+
 app.post("/api/classeswithsubjects", async (req, res) => {
-  const { classid, subjectid, weekly_frequency } = req.body;
+  const { classid, subjectid, teacher_id, weekly_frequency } = req.body;
   try {
-    const newFrequency = await pool.query(
-      "INSERT INTO class_subjects (classid, subjectid, weekly_frequency) VALUES ($1, $2, $3) RETURNING *",
-      [classid, subjectid, weekly_frequency]
+    const newEntry = await pool.query(
+      "INSERT INTO class_subjects (classid, subjectid, teacher_id, weekly_frequency) VALUES ($1, $2, $3, $4) RETURNING *",
+      [classid, subjectid, teacher_id, weekly_frequency]
     );
-    res.status(201).json(newFrequency.rows[0]);
+    res.status(201).json(newEntry.rows[0]);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
   }
 });
 
+
 app.put("/api/classeswithsubjects/:id", async (req, res) => {
   const { id } = req.params;
-  const { weekly_frequency } = req.body;
+  const { teacher_id, weekly_frequency } = req.body;
 
-  // Validate id and weekly_frequency
+  // Validate inputs
   const validId = parseInt(id);
+  const validTeacherId = parseInt(teacher_id);
   const validWeeklyFrequency = parseInt(weekly_frequency);
 
-  console.log("ID:", id, "Weekly Frequency:", weekly_frequency);
-
-  if (isNaN(validId) || isNaN(validWeeklyFrequency)) {
+  if (isNaN(validId) || isNaN(validTeacherId) || isNaN(validWeeklyFrequency)) {
     return res.status(400).send("Invalid input syntax for type integer");
   }
 
   try {
-    const updateFrequency = await pool.query(
-      "UPDATE class_subjects SET weekly_frequency = $1 WHERE id = $2 RETURNING *",
-      [validWeeklyFrequency, validId]
+    const updateEntry = await pool.query(
+      "UPDATE class_subjects SET teacher_id = $1, weekly_frequency = $2 WHERE id = $3 RETURNING *",
+      [validTeacherId, validWeeklyFrequency, validId]
     );
 
-    if (updateFrequency.rows.length > 0) {
-      res.json(updateFrequency.rows[0]);
+    if (updateEntry.rows.length > 0) {
+      res.json(updateEntry.rows[0]);
     } else {
-      res.status(404).send("Subject frequency not found");
+      res.status(404).send("Class-Subject entry not found");
     }
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
   }
 });
+
 
 // Start server
 app.listen(PORT, () => {
