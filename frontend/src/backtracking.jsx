@@ -30,17 +30,16 @@ const shuffleArray = (array) => {
 
 function Backtrack() {
   const [schedules, setSchedules] = useState([]);
-  const [conflicts, setConflicts] = useState({});
+  const [finalConflicts, setFinalConflicts] = useState({});
 
   const generateSchedulesForAllClasses = useCallback(() => {
     const generatedSchedules = {};
-    let newConflicts = {};
 
     CLASS_SCHEDULES.forEach((classObj) => {
       console.log("Generating schedule for class", classObj.name);
       const schedule = DAYS_OF_WEEK.map(() => TIME_SLOTS.map(() => null));
 
-      if (backtrackSchedule(schedule, classObj.subjects, 0, newConflicts, generatedSchedules)) {
+      if (backtrackSchedule(schedule, classObj.subjects, 0, generatedSchedules)) {
         generatedSchedules[classObj.name] = schedule;
       } else {
         console.log(`Could not finalize schedule for class ${classObj.name}`);
@@ -59,15 +58,10 @@ function Backtrack() {
     });
 
     setSchedules(Object.entries(generatedSchedules));
-    setConflicts(newConflicts);
-
-    console.log("Conflicts detected:");
-    Object.entries(newConflicts).forEach(([key, value]) => {
-      console.log(`  Conflict at ${key}: ${value}`);
-    });
+    finalConflictCheck(Object.entries(generatedSchedules));  // Perform final conflict check
   }, []);
 
-  const backtrackSchedule = (schedule, subjects, subjectIndex, newConflicts, allSchedules) => {
+  const backtrackSchedule = (schedule, subjects, subjectIndex, allSchedules) => {
     if (subjectIndex >= subjects.length) {
       return true;
     }
@@ -81,11 +75,11 @@ function Backtrack() {
 
     for (let day of days) {
       for (let slot of slots) {
-        if (currentOccurrences < neededOccurrences && canPlaceSubject(schedule, day, slot, subject, subject.teacher, newConflicts, allSchedules)) {
+        if (currentOccurrences < neededOccurrences && canPlaceSubject(schedule, day, slot, subject, subject.teacher, allSchedules)) {
           if (tryPlaceSubject(schedule, day, slot, subject)) {
             currentOccurrences++;
             if (currentOccurrences === neededOccurrences) {
-              if (backtrackSchedule(schedule, subjects, subjectIndex + 1, newConflicts, allSchedules)) {
+              if (backtrackSchedule(schedule, subjects, subjectIndex + 1, allSchedules)) {
                 return true;
               }
               removeSubject(schedule, day, slot);
@@ -100,24 +94,23 @@ function Backtrack() {
     return false;
   };
 
-  const canPlaceSubject = (schedule, day, slot, subject, teacher, newConflicts, allSchedules) => {
+  const canPlaceSubject = (schedule, day, slot, subject, teacher, allSchedules) => {
     if (!subject || schedule[day][slot] !== null) {
       console.log(`Cannot place ${subject?.name} on day ${day} at slot ${slot} because it's already occupied.`);
       return false;
     }
 
-    // Ellenőrizzük, hogy a tanár nincs-e már beosztva ebben az idősávban az aktuális órarendben
     if (schedule[day].some((period) => period && period.teacher === teacher)) {
       console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in this schedule.`);
       return false;
     }
 
-    // Ellenőrizzük, hogy a tanár nincs-e már beosztva ebben az idősávban bármelyik másik órarendben
-    for (const [className, otherSchedule] of Object.entries(allSchedules)) {
-      if (otherSchedule && otherSchedule[day] && otherSchedule[day][slot] && otherSchedule[day][slot].teacher === teacher) {
-        newConflicts[`${day}-${slot}-${teacher}`] = true;
-        console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in another schedule.`);
-        return false;
+    if (allSchedules) {
+      for (const [className, otherSchedule] of Object.entries(allSchedules)) {
+        if (otherSchedule && otherSchedule[day] && otherSchedule[day][slot] && otherSchedule[day][slot].teacher === teacher) {
+          console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in another schedule.`);
+          return false;
+        }
       }
     }
 
@@ -126,7 +119,7 @@ function Backtrack() {
 
   const tryPlaceSubject = (schedule, day, slot, subject) => {
     const teacher = subject.teacher;
-    if (canPlaceSubject(schedule, day, slot, subject, teacher, conflicts, schedules)) {
+    if (canPlaceSubject(schedule, day, slot, subject, teacher)) {
       schedule[day][slot] = { name: subject.name, teacher: teacher };
       return true;
     }
@@ -137,8 +130,7 @@ function Backtrack() {
     schedule[day][slot] = null;
   };
 
-  const calculateFitness = (schedules) => {
-    let fitness = 0;
+  const finalConflictCheck = (schedules) => {
     const conflicts = {};
 
     schedules.forEach(([className, schedule]) => {
@@ -146,10 +138,9 @@ function Backtrack() {
         day.forEach((period, slotIndex) => {
           if (period) {
             const teacher = period.teacher;
-            // Ellenőrizzük, hogy a tanár nincs-e már beosztva ebben az idősávban bármely másik órarendben
+
             schedules.forEach(([otherClassName, otherSchedule]) => {
               if (className !== otherClassName && otherSchedule[dayIndex] && otherSchedule[dayIndex][slotIndex] && otherSchedule[dayIndex][slotIndex].teacher === teacher) {
-                fitness -= 200;
                 conflicts[`${dayIndex}-${slotIndex}-${teacher}`] = true;
               }
             });
@@ -158,8 +149,7 @@ function Backtrack() {
       });
     });
 
-    setConflicts(conflicts);
-    return fitness;
+    setFinalConflicts(conflicts);
   };
 
   const optimizeSchedules = () => {
@@ -176,14 +166,12 @@ function Backtrack() {
     for (let i = 0; i < MAX_ITERATIONS; i++) {
       const newSchedules = JSON.parse(JSON.stringify(currentSchedules));
 
-      // Véletlenszerű változtatások az órarendben
       newSchedules.forEach(([className, schedule]) => {
         const dayIndex1 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
         const slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
         const dayIndex2 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
         const slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
 
-        // Cseréljük fel a két véletlenszerűen kiválasztott időpontot
         const temp = schedule[dayIndex1][slotIndex1];
         schedule[dayIndex1][slotIndex1] = schedule[dayIndex2][slotIndex2];
         schedule[dayIndex2][slotIndex2] = temp;
@@ -205,9 +193,32 @@ function Backtrack() {
     }
 
     setSchedules(bestSchedules);
+    finalConflictCheck(bestSchedules);  // Perform final conflict check
     console.log("Optimized Schedules:");
     console.log(bestSchedules);
     console.log("Optimized Fitness:", bestFitness);
+  };
+
+  const calculateFitness = (schedules) => {
+    let fitness = 0;
+
+    schedules.forEach(([className, schedule]) => {
+      schedule.forEach((day, dayIndex) => {
+        day.forEach((period, slotIndex) => {
+          if (period) {
+            const teacher = period.teacher;
+
+            schedules.forEach(([otherClassName, otherSchedule]) => {
+              if (className !== otherClassName && otherSchedule[dayIndex] && otherSchedule[dayIndex][slotIndex] && otherSchedule[dayIndex][slotIndex].teacher === teacher) {
+                fitness -= 200;
+              }
+            });
+          }
+        });
+      });
+    });
+
+    return fitness;
   };
 
   useEffect(() => {
@@ -232,7 +243,7 @@ function Backtrack() {
                 <h4>{DAYS_OF_WEEK[dayIndex]}</h4>
                 <ul>
                   {day.map((period, slotIndex) => {
-                    const isConflict = conflicts[`${dayIndex}-${slotIndex}-${period?.teacher}`];
+                    const isConflict = finalConflicts[`${dayIndex}-${slotIndex}-${period?.teacher}`];
                     const periodStyle = {
                       backgroundColor: isConflict ? 'red' : 'transparent',
                       color: isConflict ? 'white' : 'black'
