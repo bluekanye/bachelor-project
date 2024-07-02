@@ -32,36 +32,37 @@ function Backtrack() {
   const [schedules, setSchedules] = useState([]);
   const [finalConflicts, setFinalConflicts] = useState({});
 
-  const generateSchedulesForAllClasses = useCallback(() => {
+  const generateSchedulesForAllClasses = useCallback(async () => {
     const generatedSchedules = {};
-
-    CLASS_SCHEDULES.forEach((classObj) => {
+  
+    for (const classObj of CLASS_SCHEDULES) {
       console.log("Generating schedule for class", classObj.name);
       const schedule = DAYS_OF_WEEK.map(() => TIME_SLOTS.map(() => null));
-
-      if (backtrackSchedule(schedule, classObj.subjects, 0, generatedSchedules)) {
+  
+      if (await backtrackSchedule(schedule, classObj.subjects, 0, generatedSchedules)) {
         generatedSchedules[classObj.name] = schedule;
       } else {
         console.log(`Could not finalize schedule for class ${classObj.name}`);
       }
-    });
-
+    }
+  
     console.log("Generated Schedules:");
     Object.entries(generatedSchedules).forEach(([className, schedule]) => {
       console.log(`Schedule for ${className}:`);
       schedule.forEach((day, dayIndex) => {
         console.log(`  ${DAYS_OF_WEEK[dayIndex]}:`);
         day.forEach((period, slotIndex) => {
-          console.log(`    ${TIME_SLOTS[slotIndex]}: ${period ? `${period.name} - ${period.teacher}` : "Free Period"}`);
+          console.log(`    ${TIME_SLOTS[slotIndex]}: ${period ? `${period.name} - ${period.teacher}` : "Empty slot"}`);
         });
       });
     });
-
+  
     setSchedules(Object.entries(generatedSchedules));
-    finalConflictCheck(Object.entries(generatedSchedules));  // Perform final conflict check
+    optimizeSchedules(); // Use genetic algorithm to optimize schedules
   }, []);
+  
 
-  const backtrackSchedule = (schedule, subjects, subjectIndex, allSchedules) => {
+  const backtrackSchedule = async (schedule, subjects, subjectIndex, allSchedules) => {
     if (subjectIndex >= subjects.length) {
       return true;
     }
@@ -79,7 +80,7 @@ function Backtrack() {
           if (tryPlaceSubject(schedule, day, slot, subject)) {
             currentOccurrences++;
             if (currentOccurrences === neededOccurrences) {
-              if (backtrackSchedule(schedule, subjects, subjectIndex + 1, allSchedules)) {
+              if (await backtrackSchedule(schedule, subjects, subjectIndex + 1, allSchedules)) {
                 return true;
               }
               removeSubject(schedule, day, slot);
@@ -93,29 +94,29 @@ function Backtrack() {
     console.log(`Failed to place all occurrences of ${subject.name}`);
     return false;
   };
+  
+ const canPlaceSubject = (schedule, day, slot, subject, teacher, allSchedules) => {
+  if (!subject || schedule[day][slot] !== null) {
+    console.log(`Cannot place ${subject?.name} on day ${day} at slot ${slot} because it's already occupied.`);
+    return false;
+  }
 
-  const canPlaceSubject = (schedule, day, slot, subject, teacher, allSchedules) => {
-    if (!subject || schedule[day][slot] !== null) {
-      console.log(`Cannot place ${subject?.name} on day ${day} at slot ${slot} because it's already occupied.`);
-      return false;
-    }
+  if (schedule[day].some((period) => period && period.teacher === teacher)) {
+    console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in this schedule.`);
+    return false;
+  }
 
-    if (schedule[day].some((period) => period && period.teacher === teacher)) {
-      console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in this schedule.`);
-      return false;
-    }
-
-    if (allSchedules) {
-      for (const [className, otherSchedule] of Object.entries(allSchedules)) {
-        if (otherSchedule && otherSchedule[day] && otherSchedule[day][slot] && otherSchedule[day][slot].teacher === teacher) {
-          console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in another schedule.`);
-          return false;
-        }
+  if (allSchedules) {
+    for (const [className, otherSchedule] of Object.entries(allSchedules)) {
+      if (otherSchedule && otherSchedule[day] && otherSchedule[day][slot] && otherSchedule[day][slot].teacher === teacher) {
+        console.log(`Cannot place ${subject.name} on day ${day} at slot ${slot} because teacher ${teacher} is already booked in another schedule.`);
+        return false;
       }
     }
+  }
 
-    return true;
-  };
+  return true;
+};
 
   const tryPlaceSubject = (schedule, day, slot, subject) => {
     const teacher = subject.teacher;
@@ -156,74 +157,120 @@ function Backtrack() {
     const MAX_ITERATIONS = 1000;
     const initialTemperature = 1000;
     const coolingRate = 0.99;
-
-    let currentSchedules = schedules;
-    let currentFitness = calculateFitness(currentSchedules);
+  
+    if (!Array.isArray(schedules) || schedules.length === 0) {
+      console.error('Invalid schedules array:', schedules);
+      return;
+    }
+  
+    let currentSchedules = [...schedules]; // Copy schedules state
     let bestSchedules = currentSchedules;
-    let bestFitness = currentFitness;
+    let bestFitness = calculateFitness(currentSchedules);
     let temperature = initialTemperature;
-
+  
     for (let i = 0; i < MAX_ITERATIONS; i++) {
-      const newSchedules = JSON.parse(JSON.stringify(currentSchedules));
-
-      newSchedules.forEach(([className, schedule]) => {
-        const dayIndex1 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
-        const slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
-        const dayIndex2 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
-        const slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
-
-        const temp = schedule[dayIndex1][slotIndex1];
-        schedule[dayIndex1][slotIndex1] = schedule[dayIndex2][slotIndex2];
-        schedule[dayIndex2][slotIndex2] = temp;
-      });
-
+      const newSchedules = JSON.parse(JSON.stringify(currentSchedules)); // Deep copy current schedules
+  
+      // Apply Simulated Annealing move
+      simulatedAnnealingMove(newSchedules);
+  
       const newFitness = calculateFitness(newSchedules);
-
-      if (newFitness > currentFitness || Math.exp((newFitness - currentFitness) / temperature) > Math.random()) {
+  
+      if (newFitness > bestFitness || Math.exp((newFitness - bestFitness) / temperature) > Math.random()) {
         currentSchedules = newSchedules;
-        currentFitness = newFitness;
-
-        if (newFitness > bestFitness) {
-          bestSchedules = newSchedules;
-          bestFitness = newFitness;
-        }
+        bestSchedules = newSchedules;
+        bestFitness = newFitness;
       }
-
+  
       temperature *= coolingRate;
     }
-
-    setSchedules(bestSchedules);
-    finalConflictCheck(bestSchedules);  // Perform final conflict check
-    console.log("Optimized Schedules:");
-    console.log(bestSchedules);
-    console.log("Optimized Fitness:", bestFitness);
+  
+    setSchedules(bestSchedules); // Update schedules state with the best found schedules
+    finalConflictCheck(bestSchedules); // Perform final conflict check with the best schedules
   };
+  
+  const simulatedAnnealingMove = (schedules) => {
+    const classIndex1 = Math.floor(Math.random() * schedules.length);
+    const classIndex2 = Math.floor(Math.random() * schedules.length);
 
+    const [className1, schedule1] = schedules[classIndex1];
+    const [className2, schedule2] = schedules[classIndex2];
+
+    const dayIndex1 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
+    const slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
+    const dayIndex2 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
+    const slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
+
+    // Try to optimize by moving empty slots to the end of the day
+    if (!schedule1[dayIndex1][slotIndex1] && schedule2[dayIndex2][slotIndex2]) {
+        if (slotIndex2 > slotIndex1) {  // Move empty slot to a later time if possible
+            const temp = schedule1[dayIndex1][slotIndex1];
+            schedule1[dayIndex1][slotIndex1] = schedule2[dayIndex2][slotIndex2];
+            schedule2[dayIndex2][slotIndex2] = temp;
+        }
+    }
+
+    schedules[classIndex1] = [className1, schedule1];
+    schedules[classIndex2] = [className2, schedule2];
+};
+
+  
   const calculateFitness = (schedules) => {
     let fitness = 0;
 
     schedules.forEach(([className, schedule]) => {
-      schedule.forEach((day, dayIndex) => {
-        day.forEach((period, slotIndex) => {
-          if (period) {
-            const teacher = period.teacher;
+        schedule.forEach((day, dayIndex) => {
+            let dailyTeachingHours = {};
+            let emptySlotsEarlyPenalty = 0;
+            let lastNonEmptySlot = -1;
 
-            schedules.forEach(([otherClassName, otherSchedule]) => {
-              if (className !== otherClassName && otherSchedule[dayIndex] && otherSchedule[dayIndex][slotIndex] && otherSchedule[dayIndex][slotIndex].teacher === teacher) {
-                fitness -= 200;
-              }
+            day.forEach((period, slotIndex) => {
+                if (period) {
+                    const teacher = period.teacher;
+
+                    // Penalize conflicts where teachers are double-booked
+                    schedules.forEach(([otherClassName, otherSchedule]) => {
+                        if (className !== otherClassName && otherSchedule[dayIndex] && otherSchedule[dayIndex][slotIndex] && otherSchedule[dayIndex][slotIndex].teacher === teacher) {
+                            fitness -= 200; // Major penalty for conflicts
+                        }
+                    });
+
+                    // Track daily teaching hours for distribution penalty
+                    if (!dailyTeachingHours[teacher]) {
+                        dailyTeachingHours[teacher] = 0;
+                    }
+                    dailyTeachingHours[teacher]++;
+                    lastNonEmptySlot = slotIndex; // Update last non-empty slot
+
+                    // Bonus for having a subject
+                    fitness += 5;
+                } else {
+                    // Calculate penalty for early empty slots
+                    if (slotIndex < lastNonEmptySlot) {
+                        emptySlotsEarlyPenalty += 10;
+                    }
+                }
             });
-          }
+
+            // Penalize uneven distribution of teaching hours
+            Object.values(dailyTeachingHours).forEach(hours => {
+                if (hours > 3) fitness -= 10 * (hours - 3);
+            });
+
+            // Apply early empty slot penalty
+            fitness -= emptySlotsEarlyPenalty;
         });
-      });
     });
 
     return fitness;
-  };
+};
+
+  
 
   useEffect(() => {
     console.log("Schedules state updated:", schedules);
-  }, [schedules]);
+  }, [schedules]); // Itt a schedules az a változó amire figyelünk ha változik fut a useEffect
+  
 
   return (
     <div className="div-container">
@@ -250,7 +297,7 @@ function Backtrack() {
                     };
                     return (
                       <li key={slotIndex} style={periodStyle}>
-                        {TIME_SLOTS[slotIndex]}: {period ? `${period.name} - ${period.teacher}` : "Free Period"}
+                        {TIME_SLOTS[slotIndex]}: {period ? `${period.name} - ${period.teacher}` : "Üres óra"}
                       </li>
                     );
                   })}

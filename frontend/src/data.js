@@ -50,6 +50,7 @@ export const TIME_SLOTS = [
   "12:35-13:20",
   "13:30-14:15",
   
+  
 ];
 // export const CLASS_SCHEDULES = ["1.A","1.B","2.A","2.B"];
 
@@ -60,22 +61,22 @@ export const SUBJECTS = [
   new Subject("Történelem", ["Gábor Tóth", "toritanar"], 1),
   new Subject("Földrajz", ["Zsolt Farkas"], 1),
   new Subject("Magyar", ["Éva Nagy", "István Horváth", "Mária Varga", "Töltött Márton"], 2),
-  new Subject("Szlovák", ["Éva Nagy", "István Horváth", "Mária Varga" , "Töltött Márton"], 2),
+  new Subject("Szlovák", ["Éva Nagy", "István Horváth", "Mária Varga" , "Töltött Márton"], 1),
   new Subject("Angol", ["Péter Kiss", "Katalin Németh"], 1),
   new Subject("Német", ["Péter Kiss", "Katalin Németh"], 1),
   new Subject("Torna", ["Zsolt Farkas", "Judit Papp"], 1),
   new Subject("Informatika", ["Pavol Grün", "Nagy Mária"], 1),
-  new Subject("Kémia", ["Tamás Balogh", "Bence Török"], 2),
+  new Subject("Kémia", ["Tamás Balogh", "Bence Török"], 1),
   new Subject("Biológia", ["Ingrid Zóld", "Zsolt Fóthy"], 1),
-  new Subject("Spanyol", ["Ádám Fehér", "Áron Katona"], 2),
+  new Subject("Spanyol", ["Ádám Fehér", "Áron Katona"], 1),
   new Subject("Francia", ["Gergely Fekete"], 1),
-  new Subject("Polgári", ["Ádám Tóth"], 2),
+  new Subject("Polgári", ["Ádám Tóth"], 1),
   new Subject("Ora1", ["Krisztina Molnár"], 1),
   new Subject("Ora2", ["Zsolt Ferenczi"], 1),
   new Subject("Ora3", ["Ferenc Török"], 1),
   new Subject("Ora4", ["Zsolt Papp"], 1),
-  new Subject("Ora5", ["Anna László"], 2),
-  new Subject("Ora6", ["Krisztián Molnár"], 2),
+  new Subject("Ora5", ["Anna László"], 1),
+  new Subject("Ora6", ["Krisztián Molnár"], 1),
   new Subject("Hitoktatás", ["Szentlélek István"], 1),
 
   // További tantárgyak...
