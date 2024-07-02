@@ -64,6 +64,14 @@ function Backtrack() {
 
   const backtrackSchedule = async (schedule, subjects, subjectIndex, allSchedules) => {
     if (subjectIndex >= subjects.length) {
+      // Fill remaining slots with empty slots at the end of the day
+      for (let day = 0; day < DAYS_OF_WEEK.length; day++) {
+        for (let slot = TIME_SLOTS.length - 1; slot >= 0; slot--) {
+          if (schedule[day][slot] === null) {
+            schedule[day][slot] = null;  // Explicitly set empty slots at the end
+          }
+        }
+      }
       return true;
     }
 
@@ -93,7 +101,8 @@ function Backtrack() {
 
     console.log(`Failed to place all occurrences of ${subject.name}`);
     return false;
-  };
+};
+
   
  const canPlaceSubject = (schedule, day, slot, subject, teacher, allSchedules) => {
   if (!subject || schedule[day][slot] !== null) {
@@ -197,73 +206,83 @@ function Backtrack() {
     const [className2, schedule2] = schedules[classIndex2];
 
     const dayIndex1 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
-    const slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
     const dayIndex2 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
+    const slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
     const slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
 
-    // Try to optimize by moving empty slots to the end of the day
-    if (!schedule1[dayIndex1][slotIndex1] && schedule2[dayIndex2][slotIndex2]) {
-        if (slotIndex2 > slotIndex1) {  // Move empty slot to a later time if possible
-            const temp = schedule1[dayIndex1][slotIndex1];
-            schedule1[dayIndex1][slotIndex1] = schedule2[dayIndex2][slotIndex2];
-            schedule2[dayIndex2][slotIndex2] = temp;
-        }
+    // Swap conditions to promote empty slots at the start or end
+    if ((slotIndex1 < slotIndex2 && schedule2[dayIndex2][slotIndex2] === null) || (slotIndex1 > slotIndex2 && schedule1[dayIndex1][slotIndex1] === null)) {
+        // Swap only if it helps in moving an empty slot to a more extreme position
+        const temp = schedule1[dayIndex1][slotIndex1];
+        schedule1[dayIndex1][slotIndex1] = schedule2[dayIndex2][slotIndex2];
+        schedule2[dayIndex2][slotIndex2] = temp;
     }
 
     schedules[classIndex1] = [className1, schedule1];
     schedules[classIndex2] = [className2, schedule2];
 };
 
+
+
   
-  const calculateFitness = (schedules) => {
-    let fitness = 0;
+const calculateFitness = (schedules) => {
+  let fitness = 0;
 
-    schedules.forEach(([className, schedule]) => {
-        schedule.forEach((day, dayIndex) => {
-            let dailyTeachingHours = {};
-            let emptySlotsEarlyPenalty = 0;
-            let lastNonEmptySlot = -1;
+  schedules.forEach(([className, schedule]) => {
+      schedule.forEach((day, dayIndex) => {
+          let dailyTeachingHours = {};
+          let lastNonEmptySlot = -1;
+          let firstEmptySlotAfterLastTeaching = -1;
+          let hasTeachingStarted = false;
 
-            day.forEach((period, slotIndex) => {
-                if (period) {
-                    const teacher = period.teacher;
+          day.forEach((period, slotIndex) => {
+              if (period) {
+                  const teacher = period.teacher;
 
-                    // Penalize conflicts where teachers are double-booked
-                    schedules.forEach(([otherClassName, otherSchedule]) => {
-                        if (className !== otherClassName && otherSchedule[dayIndex] && otherSchedule[dayIndex][slotIndex] && otherSchedule[dayIndex][slotIndex].teacher === teacher) {
-                            fitness -= 200; // Major penalty for conflicts
-                        }
-                    });
+                  // Update teaching tracking
+                  hasTeachingStarted = true;
+                  lastNonEmptySlot = slotIndex; // Update last non-empty slot
 
-                    // Track daily teaching hours for distribution penalty
-                    if (!dailyTeachingHours[teacher]) {
-                        dailyTeachingHours[teacher] = 0;
-                    }
-                    dailyTeachingHours[teacher]++;
-                    lastNonEmptySlot = slotIndex; // Update last non-empty slot
+                  // Penalize conflicts where teachers are double-booked
+                  schedules.forEach(([otherClassName, otherSchedule]) => {
+                      if (className !== otherClassName && otherSchedule[dayIndex] && otherSchedule[dayIndex][slotIndex] && otherSchedule[dayIndex][slotIndex].teacher === teacher) {
+                          fitness -= 300; // Major penalty for conflicts
+                      }
+                  });
 
-                    // Bonus for having a subject
-                    fitness += 5;
-                } else {
-                    // Calculate penalty for early empty slots
-                    if (slotIndex < lastNonEmptySlot) {
-                        emptySlotsEarlyPenalty += 10;
-                    }
-                }
-            });
+                  // Track daily teaching hours for distribution penalty
+                  if (!dailyTeachingHours[teacher]) {
+                      dailyTeachingHours[teacher] = 0;
+                  }
+                  dailyTeachingHours[teacher]++;
+                  fitness += 10; // Bonus for having a subject
+              } else if (hasTeachingStarted && firstEmptySlotAfterLastTeaching === -1) {
+                  firstEmptySlotAfterLastTeaching = slotIndex; // Mark the first empty slot after the last teaching period
+              }
+          });
 
-            // Penalize uneven distribution of teaching hours
-            Object.values(dailyTeachingHours).forEach(hours => {
-                if (hours > 3) fitness -= 10 * (hours - 3);
-            });
+          // Calculate empty slot placement bonuses
+          if (firstEmptySlotAfterLastTeaching !== -1) {
+              let emptySlotsAtEnd = day.length - firstEmptySlotAfterLastTeaching;
+              fitness += emptySlotsAtEnd * 15; // Bonus for continuous empty slots at the end
+          }
 
-            // Apply early empty slot penalty
-            fitness -= emptySlotsEarlyPenalty;
-        });
-    });
+          // Penalize uneven distribution of teaching hours
+          Object.values(dailyTeachingHours).forEach(hours => {
+              if (hours > 3) fitness -= 15 * (hours - 3); // Penalty for over-scheduling teachers
+          });
 
-    return fitness;
+          // Additional minor penalty for early empty slots before any teaching has started
+          if (firstEmptySlotAfterLastTeaching !== lastNonEmptySlot + 1) {
+              fitness -= (firstEmptySlotAfterLastTeaching - lastNonEmptySlot - 1) * 5;
+          }
+      });
+  });
+
+  return fitness;
 };
+
+
 
   
 
