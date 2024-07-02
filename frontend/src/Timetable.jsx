@@ -33,13 +33,16 @@ const Timetable = () => {
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [teacherSubjects, setTeacherSubjects] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
 
   const fetchData = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}`
       );
+      console.log("API Response:", response.data); // Debugging line
       setData(response.data);
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -69,6 +72,11 @@ const Timetable = () => {
           "http://localhost:3001/api/classes"
         );
         setClasses(classesResponse.data);
+
+        const teacherSubjectsResponse = await axios.get(
+          "http://localhost:3001/api/teachersubjects"
+        );
+        setTeacherSubjects(teacherSubjectsResponse.data);
       } catch (error) {
         console.error("Error fetching initial data:", error);
       }
@@ -81,6 +89,7 @@ const Timetable = () => {
     setIsEditing(false);
     setNewData({});
     setSelectedSubjects([]);
+    setFilteredTeachers([]);
     setShowModal(true);
   };
 
@@ -88,6 +97,7 @@ const Timetable = () => {
     setShowModal(false);
     setNewData({});
     setSelectedSubjects([]);
+    setFilteredTeachers([]);
     setIsEditing(false);
     setEditingItemId(null);
   };
@@ -95,6 +105,17 @@ const Timetable = () => {
   const handleNewDataChange = (event) => {
     const { name, value } = event.target;
     setNewData({ ...newData, [name]: value });
+
+    if (name === "subjectname") {
+      // Update the list of teachers based on the selected subject
+      const filtered = teacherSubjects
+        .filter((ts) => ts.subjectname === value)
+        .map((ts) => ({
+          teacherid: ts.teacherid,
+          teachername: ts.teachername,
+        }));
+      setFilteredTeachers(filtered);
+    }
   };
 
   const handleSubjectChange = (event) => {
@@ -140,13 +161,14 @@ const Timetable = () => {
     event.preventDefault();
 
     if (!validate()) {
-      console.log("Érvényesítés sikertelen.");
+      console.log("Validation failed.");
       return;
     }
 
-    let apiUrl = `http://localhost:3001/api/${tableMapping[
-      selectedTable
-    ].toLowerCase()}${isEditing ? `/${editingItemId}` : ""}`;
+    const tableName = tableMapping[selectedTable].toLowerCase();
+    const apiUrl = `http://localhost:3001/api/${tableName}${
+      isEditing ? `/${editingItemId}` : ""
+    }`;
     const method = isEditing ? "put" : "post";
 
     let payload;
@@ -157,19 +179,24 @@ const Timetable = () => {
       const selectedSubject = subjects.find(
         (s) => s.subjectname === newData.subjectname
       );
-      const selectedTeacherId = newData.teacher_id;
+      const selectedTeacherId = parseInt(newData.teacher_id, 10);
 
       payload = {
         classid: selectedClass ? selectedClass.classid : null,
         subjectid: selectedSubject ? selectedSubject.subjectid : null,
         teacher_id: selectedTeacherId,
-        weekly_frequency: newData.weekly_frequency,
+        weekly_frequency: parseInt(newData.weekly_frequency, 10),
+      };
+    } else if (selectedTable === "Tanár Tantárgyak") {
+      payload = {
+        teachername: newData.teachername,
+        subjects: selectedSubjects,
       };
     } else {
       payload = { ...newData };
     }
 
-    console.log("Adatok küldése az API-hoz:", payload);
+    console.log("Sending data to API:", payload);
 
     try {
       const response = await axios({
@@ -189,7 +216,7 @@ const Timetable = () => {
       fetchData();
     } catch (error) {
       console.error(
-        `Hiba az elem ${isEditing ? "szerkesztése" : "hozzáadása"} közben:`,
+        `Error ${isEditing ? "editing" : "adding"} item:`,
         error.response ? error.response.data : error
       );
     }
@@ -206,6 +233,10 @@ const Timetable = () => {
     };
     const idField = idFieldMap[tableMapping[selectedTable]];
     const id = item[idField];
+    console.log(`item: ${JSON.stringify(item)}`);
+    console.log(`selectedTable: ${selectedTable}`);
+    console.log(`idField: ${idField}`);
+    console.log(`id: ${id}`);
 
     if (typeof id === "undefined") {
       console.error(
@@ -251,7 +282,7 @@ const Timetable = () => {
     setIsEditing(true);
     setEditingItemId(item[idField]);
     setNewData({
-      ...item,
+      ...item, // Az összes mezőt beállítjuk az adatokból
     });
     setSelectedSubjects(
       item.subjectname
@@ -389,12 +420,12 @@ const Timetable = () => {
                       onChange={handleNewDataChange}
                     >
                       <option value="">Válasszon tanárt</option>
-                      {teachers.map((teacher) => (
+                      {filteredTeachers.map((teacher) => (
                         <option
                           key={teacher.teacherid}
                           value={teacher.teacherid}
                         >
-                          {teacher.name}
+                          {teacher.teachername}
                         </option>
                       ))}
                     </select>
@@ -488,7 +519,7 @@ const Timetable = () => {
                     <td>{item.id}</td>
                     <td>{item.classname}</td>
                     <td>{item.subjectname}</td>
-                    <td>{item.teacher_name || "Nincs megadva"}</td> {/* Itt jelenik meg a tanár neve */}
+                    <td>{item.teacher_name || "Nincs megadva"}</td>
                     <td>{item.weekly_frequency} x / hét</td>
                     <td>
                       <button onClick={() => handleUpdate(item)}>
@@ -501,16 +532,15 @@ const Timetable = () => {
               : Array.isArray(data) &&
                 data.map((item) => (
                   <tr key={item.id}>
-                    {Object.entries(item).map(([key, value], idx) => {
-                      if (key !== "subjects") {
-                        return (
-                          <td key={`${item.id}-${idx}`}>
-                            {value !== null ? value.toString() : ""}
-                          </td>
-                        );
-                      }
-                      return null;
-                    })}
+                    {Object.entries(item).map(([key, value], idx) => (
+                      <td key={`${item.id}-${idx}`}>
+                        {key === "teacher_name"
+                          ? value || "Nincs megadva"
+                          : value !== null
+                          ? value.toString()
+                          : ""}
+                      </td>
+                    ))}
                     <td>
                       <button onClick={() => handleUpdate(item)}>
                         Szerkesztés
