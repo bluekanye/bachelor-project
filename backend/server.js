@@ -1,28 +1,50 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const { Pool } = require("pg");
+// require("dotenv").config();
+// const express = require("express");
+// const cors = require("cors");
+// const { Pool } = require("pg");
+
+// const app = express();
+
+// const PORT = process.env.PORT || 3001;
+// const pool = new Pool({
+//   user: process.env.DB_USER,
+//   host: process.env.DB_HOST,
+//   database: process.env.DB_NAME,
+//   password: process.env.DB_PASSWORD,
+//   port: process.env.DB_PORT,
+// });
+
+// app.use('/', (req, res) => {
+//   res.send('server is up and running');
+// });
+
+// // Start server
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+// // app.listen(3001, console.log("server is runnin on port 3001"));
+// // Middleware
+// app.use(cors());
+// app.use(express.json());
+//felul ez a localhoston megy
+
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { Pool } = require('pg');
 
 const app = express();
 
 const PORT = process.env.PORT || 3001;
+
+// Adatbázis kapcsolat beállítása a DATABASE_URL használatával
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-app.use('/', (req, res) => {
-  res.send('server is up and running');
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-// app.listen(3001, console.log("server is runnin on port 3001"));
 // Middleware
 app.use(cors());
 app.use(express.json());
