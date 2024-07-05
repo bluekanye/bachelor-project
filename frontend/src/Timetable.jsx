@@ -61,25 +61,25 @@ const Timetable = () => {
       try {
         const teachersResponse = await axios.get(
           // "http://localhost:3001/api/teachers"   localhost mukodeshez
-          "${process.env.REACT_APP_API_URL}/api/teachers"
+          '${process.env.REACT_APP_API_URL}/api/teachers'
         );
         setTeachers(teachersResponse.data);
 
         const subjectsResponse = await axios.get(
           // "http://localhost:3001/api/subjects"  localhost mukodeshez
-          "${process.env.REACT_APP_API_URL}/api/subjects"
+          '${process.env.REACT_APP_API_URL}/api/subjects'
         );
         setSubjects(subjectsResponse.data);
 
         const classesResponse = await axios.get(
           // "http://localhost:3001/api/classes"  localhost mukodeshez
-          "${process.env.REACT_APP_API_URL}/api/classes"
+          '${process.env.REACT_APP_API_URL}/api/classes'
         );
         setClasses(classesResponse.data);
 
         const teacherSubjectsResponse = await axios.get(
           // "http://localhost:3001/api/teachersubjects"  localhost mukodeshez   ${process.env.REACT_APP_API_URL}
-          "${process.env.REACT_APP_API_URL}/api/teachersubjects"
+          '${process.env.REACT_APP_API_URL}/api/teachersubjects'
         );
         setTeacherSubjects(teacherSubjectsResponse.data);
       } catch (error) {
