@@ -45,6 +45,16 @@ const pool = new Pool({
   }
 });
 
+// Próbáljuk ki az adatbázis kapcsolatot az induláskor
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('Error acquiring client', err.stack);
+  } else {
+    console.log('Database connected successfully');
+    release();
+  }
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
