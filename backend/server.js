@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cors = require("cors");
 const { Pool } = require('pg');
 
 const app = express();
@@ -31,14 +31,10 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
+  origin:"https://bachelor-project-alpha.vercel.app",
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],}));
+
+
 app.use(express.json());
 
 // Alapértelmezett végpont, amely ellenőrzi, hogy a szerver fut-e
