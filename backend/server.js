@@ -1,3 +1,36 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { Pool } = require('pg');
+
+const app = express();
+
+const PORT = process.env.PORT || 3001;
+
+// Adatbázis kapcsolat beállítása a DATABASE_URL használatával
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('Error acquiring client', err.stack);
+  } else {
+    console.log('Database connected successfully');
+    release();
+  }
+});
+
+app.use(cors());
+app.use(express.json());
+
+// Alapértelmezett végpont, amely ellenőrzi, hogy a szerver fut-e
+app.get('/', (req, res) => {
+  res.send('server is up and running');
+});
 // require("dotenv").config();
 // const express = require("express");
 // const cors = require("cors");
@@ -28,36 +61,6 @@
 // app.use(express.json());
 //felul ez a localhoston megy
 
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
-
-const app = express();
-
-const PORT = process.env.PORT || 3001;
-
-// Adatbázis kapcsolat beállítása a DATABASE_URL használatával
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-
-// Próbáljuk ki az adatbázis kapcsolatot az induláskor
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error('Error acquiring client', err.stack);
-  } else {
-    console.log('Database connected successfully');
-    release();
-  }
-});
-
-// Middleware
-app.use(cors());
-app.use(express.json());
 
 const allowedTables = [
   "Teachers",
@@ -793,4 +796,9 @@ app.get("/api/classesByYear", async (req, res) => {
     console.error(err.message);
     res.status(500).send("Server error");
   }
+});
+
+// Szerver indítása és a port figyelése
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
