@@ -28,9 +28,10 @@ pool.connect((err, client, release) => {
 
 
 app.use(cors({
-  origin:"https://bachelor-project-alpha.vercel.app",
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],}));
-
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 app.use(express.json());
 
