@@ -45,7 +45,8 @@ function Backtrack() {
 
   const fetchData = async () => {
     try {
-      const classSubjectResponse = await axios.get("http://localhost:3001/api/classeswithsubjects");
+      // const classSubjectResponse = await axios.get("http://localhost:3001/api/classeswithsubjects"); // localhosthoz
+      const classSubjectResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/classeswithsubjects");
   
       const classSubjectData = classSubjectResponse.data;
       console.log("Class Subject Data:", classSubjectData); // Debugging line
