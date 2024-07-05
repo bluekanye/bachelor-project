@@ -41,7 +41,7 @@ const Timetable = () => {
     try {
       const response = await axios.get(
         // `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}` localhost mukodeshez
-        "${process.env.REACT_APP_API_URL}/${tableMapping[selectedTable].toLowerCase()}"
+        "${process.env.REACT_APP_API_URL}/api/${tableMapping[selectedTable].toLowerCase()}"
       );
       console.log("API Response:", response.data); // Debugging line
       setData(response.data);
