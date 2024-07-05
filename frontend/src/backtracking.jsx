@@ -272,7 +272,7 @@ function Backtrack() {
   const optimizeSchedules = () => {
     const MAX_ITERATIONS = 1000;
     const initialTemperature = 1000;
-    const coolingRate = 0.99;
+    const coolingRate = 0.95;
 
     if (!Array.isArray(schedules) || schedules.length === 0) {
       console.error("Invalid schedules array:", schedules);
@@ -309,49 +309,49 @@ function Backtrack() {
   };
 
   const simulatedAnnealingMove = (schedules) => {
-    const classIndex1 = Math.floor(Math.random() * schedules.length);
-    const classIndex2 = Math.floor(Math.random() * schedules.length);
-
-    const [className1, schedule1] = schedules[classIndex1];
-    const [className2, schedule2] = schedules[classIndex2];
-
-    const dayIndex1 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
-    const dayIndex2 = Math.floor(Math.random() * DAYS_OF_WEEK.length);
-    const slotIndex1 = Math.floor(Math.random() * TIME_SLOTS.length);
-    const slotIndex2 = Math.floor(Math.random() * TIME_SLOTS.length);
-
-    // Swap conditions to promote empty slots at the start or end
-    if (
-      (slotIndex1 < slotIndex2 && schedule2[dayIndex2][slotIndex2] === null) ||
-      (slotIndex1 > slotIndex2 && schedule1[dayIndex1][slotIndex1] === null)
-    ) {
-      // Swap only if it helps in moving an empty slot to a more extreme position
-      const temp = schedule1[dayIndex1][slotIndex1];
-      schedule1[dayIndex1][slotIndex1] = schedule2[dayIndex2][slotIndex2];
-      schedule2[dayIndex2][slotIndex2] = temp;
+    const classIndex = Math.floor(Math.random() * schedules.length);
+    const [className, schedule] = schedules[classIndex];
+  
+    const dayIndex = Math.floor(Math.random() * DAYS_OF_WEEK.length);
+    const day = schedule[dayIndex];
+  
+    const filledSlots = day.map((slot, index) => slot ? index : null).filter(index => index !== null);
+    const emptySlots = day.map((slot, index) => slot ? null : index).filter(index => index !== null);
+  
+    if (filledSlots.length > 0 && emptySlots.length > 0) {
+      const filledIndex = filledSlots[Math.floor(Math.random() * filledSlots.length)];
+      const emptyIndex = emptySlots[Math.floor(Math.random() * emptySlots.length)];
+  
+      if (emptyIndex > filledIndex) {
+        // Swap filled slot with empty slot to move the empty slot to the end
+        const temp = day[filledIndex];
+        day[filledIndex] = day[emptyIndex];
+        day[emptyIndex] = temp;
+      }
     }
-
-    schedules[classIndex1] = [className1, schedule1];
-    schedules[classIndex2] = [className2, schedule2];
+  
+    schedules[classIndex] = [className, schedule];
   };
-
+  
+  
   const calculateFitness = (schedules) => {
     let fitness = 0;
-
+  
     schedules.forEach(([className, schedule]) => {
       schedule.forEach((day, dayIndex) => {
         let dailyTeachingHours = {};
         let lastNonEmptySlot = -1;
         let firstEmptySlotAfterLastTeaching = -1;
         let hasTeachingStarted = false;
-
+        let subjectsSeen = new Set(); // Track subjects seen during the day
+  
         day.forEach((period, slotIndex) => {
           if (period) {
             const teacher = period.teacher;
-
+  
             hasTeachingStarted = true;
             lastNonEmptySlot = slotIndex;
-
+  
             schedules.forEach(([otherClassName, otherSchedule]) => {
               if (
                 className !== otherClassName &&
@@ -359,15 +359,22 @@ function Backtrack() {
                 otherSchedule[dayIndex][slotIndex] &&
                 otherSchedule[dayIndex][slotIndex].teacher === teacher
               ) {
-                fitness -= 300;
+                fitness -= 500; // Increased penalty for conflicts
               }
             });
-
+  
             if (!dailyTeachingHours[teacher]) {
               dailyTeachingHours[teacher] = 0;
             }
             dailyTeachingHours[teacher]++;
             fitness += 10;
+  
+            // Check for multiple periods of the same subject on the same day
+            if (subjectsSeen.has(period.name)) {
+              fitness -= 200; // Penalize multiple periods of the same subject on the same day
+            } else {
+              subjectsSeen.add(period.name);
+            }
           } else if (
             hasTeachingStarted &&
             firstEmptySlotAfterLastTeaching === -1
@@ -375,29 +382,37 @@ function Backtrack() {
             firstEmptySlotAfterLastTeaching = slotIndex;
           }
         });
-
+  
         if (firstEmptySlotAfterLastTeaching !== -1) {
           let emptySlotsAtEnd = day.length - firstEmptySlotAfterLastTeaching;
           fitness += emptySlotsAtEnd * 15;
         }
-
+  
         Object.values(dailyTeachingHours).forEach((hours) => {
-          if (hours > 3) fitness -= 15 * (hours - 3);
+          if (hours > 3) fitness -= 25 * (hours - 3); // Increased penalty for long teaching hours
         });
-
-        if (firstEmptySlotAfterLastTeaching !== lastNonEmptySlot + 1) {
-          fitness -=
-            (firstEmptySlotAfterLastTeaching - lastNonEmptySlot - 1) * 5;
+  
+        // Penalize for empty slots in the middle of teaching periods
+        for (let i = 0; i < day.length; i++) {
+          if (day[i] === null && hasTeachingStarted) {
+            if (i < lastNonEmptySlot) {
+              fitness -= 50;
+            }
+          }
         }
       });
     });
-
+  
     return fitness;
   };
+  
+  
+  
+  
 
   useEffect(() => {
     console.log("Schedules state updated:", schedules);
-  }, [schedules]); 
+  }, [schedules]); // Itt a schedules az a változó amire figyelünk ha változik fut a useEffect
 
   const generatePdf = () => {
     const doc = new jsPDF();
