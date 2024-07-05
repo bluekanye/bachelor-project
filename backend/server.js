@@ -4,6 +4,7 @@ const cors = require("cors");
 const { Pool } = require("pg");
 
 const app = express();
+
 const PORT = process.env.PORT || 3001;
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -13,6 +14,15 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+app.use('/', (req, res) => {
+  res.send('server is up and running');
+});
+
+// Start server
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+app.listen(3001, console.log("server is runnin on port 3001"));
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -708,10 +718,7 @@ app.put("/api/classeswithsubjects/:id", async (req, res) => {
 });
 
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
 
 // Delete (DELETE) - Remove a subject frequency associated with a class
 app.delete("/api/classeswithsubjects/:id", async (req, res) => {
