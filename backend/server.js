@@ -19,10 +19,10 @@ app.use('/', (req, res) => {
 });
 
 // Start server
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
-app.listen(3001, console.log("server is runnin on port 3001"));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+// app.listen(3001, console.log("server is runnin on port 3001"));
 // Middleware
 app.use(cors());
 app.use(express.json());
