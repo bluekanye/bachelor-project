@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import "./backtrack.css";
 import { DAYS_OF_WEEK, TIME_SLOTS } from "./data.js"; // Ensure this file contains these constants
 
@@ -395,7 +397,39 @@ function Backtrack() {
 
   useEffect(() => {
     console.log("Schedules state updated:", schedules);
-  }, [schedules]); // Itt a schedules az a változó amire figyelünk ha változik fut a useEffect
+  }, [schedules]); 
+
+  const generatePdf = () => {
+    const doc = new jsPDF();
+    
+    schedules.forEach(([className, schedule]) => {
+      const title = `Órarend - ${className}`;
+      doc.addPage();
+      doc.text(title, 14, 20);
+
+      const tableColumn = ["Idő", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
+      const tableRows = [];
+
+      TIME_SLOTS.forEach((slot, slotIndex) => {
+        const row = [slot];
+        DAYS_OF_WEEK.forEach((day, dayIndex) => {
+          const period = schedule[dayIndex][slotIndex];
+          row.push(period ? `${period.name} - ${period.teacher}` : "Üres óra");
+        });
+        tableRows.push(row);
+      });
+
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 30,
+        styles: { halign: 'center' },
+        headStyles: { fillColor: [41, 128, 185] },
+      });
+    });
+
+    doc.save(`orarendek.pdf`);
+  };
 
   return (
     <div className="div-container">
@@ -404,6 +438,7 @@ function Backtrack() {
         Összes osztály órarendjének generálása
       </button>
       <button onClick={optimizeSchedules}>Optimalizálás</button>
+      <button onClick={generatePdf}>Letöltés PDF-ben</button>
       <div style={{ ...containerStyle, justifyContent: "space-between" }}>
         {Array.isArray(schedules) &&
           schedules.length > 0 &&
