@@ -24,7 +24,10 @@ pool.connect((err, client, release) => {
   }
 });
 
-app.use(cors());
+// Middleware
+app.use(cors({
+  origin: 'https://bachelor-project-nfbi.vercel.app' // Adj meg itt a front-end domainjét
+}));
 app.use(express.json());
 
 // Alapértelmezett végpont, amely ellenőrzi, hogy a szerver fut-e
