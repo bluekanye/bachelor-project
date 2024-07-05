@@ -25,10 +25,7 @@ pool.connect((err, client, release) => {
 });
 
 // Middleware
-const allowedOrigins = [
-  'https://bachelor-project-nfbi.vercel.app',
-  'https://bachelor-project-alpha.vercel.app'
-];
+
 
 app.use(cors({
   origin:"https://bachelor-project-alpha.vercel.app",
