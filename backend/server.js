@@ -25,8 +25,19 @@ pool.connect((err, client, release) => {
 });
 
 // Middleware
+const allowedOrigins = [
+  'https://bachelor-project-nfbi.vercel.app',
+  'https://bachelor-project-alpha.vercel.app'
+];
+
 app.use(cors({
-  origin: 'https://bachelor-project-nfbi.vercel.app' // Adj meg itt a front-end domainjét
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 app.use(express.json());
 
