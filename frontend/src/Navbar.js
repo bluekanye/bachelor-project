@@ -19,9 +19,9 @@ function Navbar() {
         <li className="nav-item">
           <NavLink to="/timetable" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>Adatbázis szerkesztés</NavLink>
         </li>
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <NavLink to="/schedulegenerator" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>ScheduleGenerator</NavLink>
-        </li>
+        </li> */}
         <li className="nav-item">
           <NavLink to="/backtracking" className={({ isActive }) => isActive ? "active nav-link" : "nav-link"}>Backtracking algoritmus</NavLink>
         </li>

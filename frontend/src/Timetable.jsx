@@ -8,7 +8,7 @@ const Timetable = () => {
     Teachers: "Tanár",
     Classes: "Osztály",
     Subjects: "Tantárgy",
-    Classrooms: "Tanterem",
+    // Classrooms: "Tanterem",
     TeacherSubjects: "Tanár Tantárgyak",
     ClassesWithSubjects: "Osztályok Tantárgyakkal",
   };
@@ -17,7 +17,7 @@ const Timetable = () => {
     Tanár: "Teachers",
     Osztály: "Classes",
     Tantárgy: "Subjects",
-    Tanterem: "Classrooms",
+    // Tanterem: "Classrooms",
     "Tanár Tantárgyak": "TeacherSubjects",
     "Osztályok Tantárgyakkal": "ClassesWithSubjects",
   };
@@ -232,7 +232,7 @@ const Timetable = () => {
       Teachers: "teacherid",
       Classes: "classid",
       Subjects: "subjectid",
-      Classrooms: "classroomid",
+      // Classrooms: "classroomid",
       TeacherSubjects: "teachersubjectsid",
       ClassesWithSubjects: "id",
     };
@@ -273,7 +273,7 @@ const Timetable = () => {
       Teachers: "teacherid",
       Classes: "classid",
       Subjects: "subjectid",
-      Classrooms: "classroomid",
+      // Classrooms: "classroomid",
       TeacherSubjects: "teachersubjectsid",
       ClassesWithSubjects: "id",
     };
