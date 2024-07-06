@@ -49,12 +49,14 @@ body.light {
 
 /* dark mode */
 body.dark {
-  --background-color: #121212;
+  --background-color: #2b2b2b; /* Szürkés háttérszín */
   --text-color: #ffffff;
   --link-color: #dddddd;
   --button-background: #333333;
   --button-text-color: #ffffff;
   --navbar-background-dark: #595959;
+  --modal-background-color: #444444; /* Modal háttérszín sötét módban */
+  --modal-text-color: #ffffff;
 }
 
 body {
