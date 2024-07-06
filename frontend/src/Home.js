@@ -1,7 +1,7 @@
 // Home.js
 import React from "react";
 import { Link } from "react-router-dom";
-import HasznalatiUtasitasModal from './HasznalatiUtasitasModal.js';
+import HasznalatiUtasitasModal from './HasznalatiUtasitasModal';
 import "./home.css";
 
 function Home() {
