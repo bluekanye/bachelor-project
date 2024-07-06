@@ -1,5 +1,7 @@
+// Home.js
 import React from "react";
 import { Link } from "react-router-dom";
+import HasznalatiUtasitasModal from './HasznalatiUtasitasModal.js';
 import "./home.css";
 
 function Home() {
@@ -15,21 +17,15 @@ function Home() {
         <ul>
           <li>Egyszerű és felhasználóbarát felület</li>
           <li>Testreszabható adatbázis</li>
-          
         </ul>
       </section>
 
-      {/* <div className="cta-section">
-        <Link to="/login" className="cta-button">
-          Kezdjük el
-        </Link>
-      </div> */}
-
-      
+      <div className="cta-section">
+        <HasznalatiUtasitasModal />
+      </div>
 
       <footer className="home-footer">
         <p>&copy; 2024 Órarend tervező alkalmazás. Tóth Ádám</p>
-        {}
       </footer>
     </div>
   );

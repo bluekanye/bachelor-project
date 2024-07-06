@@ -419,7 +419,7 @@ function Backtrack() {
       doc.addPage();
       doc.text(title, 14, 20);
 
-      const tableColumn = ["Idő", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek"];
+      const tableColumn = ["Idö", "Hétfö", "Kedd", "Szerda", "Csütörtök", "Péntek"];
       const tableRows = [];
 
       TIME_SLOTS.forEach((slot, slotIndex) => {
