@@ -37,7 +37,6 @@
   }
 }
 
-/* light mode */
 body.light {
   --background-color: #ffffff;
   --text-color: #000000;
@@ -47,23 +46,20 @@ body.light {
   --navbar-background: rgba(35, 195, 244, 0.85);
 }
 
-/* dark mode */
 body.dark {
-  --background-color: #2b2b2b; /* Szürkés háttérszín */
+  --background-color: #2b2b2b;
   --text-color: #ffffff;
   --link-color: #dddddd;
   --button-background: #333333;
   --button-text-color: #ffffff;
   --navbar-background-dark: #595959;
-  --modal-background-color: #444444; /* Modal háttérszín sötét módban */
+  --modal-background-color: #444444;
   --modal-text-color: #ffffff;
 }
 
 body {
   background-color: var(--background-color);
   color: var(--text-color);
-  /* background: rgb(2,0,36);
-background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(13,198,235,0.7539390756302521) 15%); */
 }
 
 a {
@@ -83,10 +79,9 @@ button {
 }
 
 .theme-toggle-checkbox {
-  display: none; /* Hide the default checkbox */
+  display: none;
 }
 
-/* slider background */
 .theme-toggle-slider {
   background-color: #ccc;
   bottom: 0;
@@ -99,7 +94,6 @@ button {
   border-radius: 34px;
 }
 
-/* circle inside the slider */
 .theme-toggle-slider:before {
   background-color: white;
   bottom: 4px;
@@ -112,18 +106,15 @@ button {
   border-radius: 50%;
 }
 
-/* checkbox is checked */
 .theme-toggle-checkbox:checked + .theme-toggle-slider {
   background-color: #a6a6a6;
 }
 
-/* inside the slider when checked */
 .theme-toggle-checkbox:checked + .theme-toggle-slider:before {
   transform: translateX(26px);
   background-color: #16181a;
 }
 
-/* slider is hovered over */
 .theme-toggle-slider:hover {
   background-color: #a6a6a6;
 }
@@ -140,14 +131,6 @@ button {
   z-index: 10;
 }
 
-/*
-.toggle-emoji {
-  font-size: 20px; 
-}
-
-*/
-
-/* CSS to insert emojis as background content */
 .theme-toggle-container.light .theme-toggle-slider::before {
   content: "🌞";
 }

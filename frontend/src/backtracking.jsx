@@ -3,7 +3,7 @@ import axios from "axios";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import "./backtrack.css";
-import { DAYS_OF_WEEK, TIME_SLOTS } from "./data.js"; // Ensure this file contains these constants
+import { DAYS_OF_WEEK, TIME_SLOTS } from "./data.js"; 
 
 const containerStyle = {
   display: "flex",
@@ -49,7 +49,7 @@ function Backtrack() {
       const classSubjectResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/classeswithsubjects`);
   
       const classSubjectData = classSubjectResponse.data;
-      console.log("Class Subject Data:", classSubjectData); // Debugging line
+      console.log("Class Subject Data:", classSubjectData); 
   
       // Process the data
       const classMap = {};
@@ -60,7 +60,7 @@ function Backtrack() {
         }
         classMap[item.classname].push({
           subjectName: item.subjectname,
-          teacherName: item.teacher_name,  // Ensure correct field name here
+          teacherName: item.teacher_name,  
           quantity: item.weekly_frequency,
         });
       });
@@ -69,7 +69,7 @@ function Backtrack() {
         return new Class(className, classMap[className]);
       });
   
-      console.log("Generated Class Schedules:", generatedClassSchedules); // Debugging line
+      console.log("Generated Class Schedules:", generatedClassSchedules); 
   
       setClassSchedules(generatedClassSchedules);
   
@@ -120,7 +120,7 @@ function Backtrack() {
     });
 
     setSchedules(Object.entries(generatedSchedules));
-    optimizeSchedules(); // Use genetic algorithm to optimize schedules
+    optimizeSchedules(); 
   }, [classSchedules]);
 
   const backtrackSchedule = async (
@@ -276,15 +276,15 @@ function Backtrack() {
       return;
     }
 
-    let currentSchedules = [...schedules]; // Copy schedules state
+    let currentSchedules = [...schedules]; 
     let bestSchedules = currentSchedules;
     let bestFitness = calculateFitness(currentSchedules);
     let temperature = initialTemperature;
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
-      const newSchedules = JSON.parse(JSON.stringify(currentSchedules)); // Deep copy current schedules
+      const newSchedules = JSON.parse(JSON.stringify(currentSchedules)); 
 
-      // Apply Simulated Annealing move
+      
       simulatedAnnealingMove(newSchedules);
 
       const newFitness = calculateFitness(newSchedules);
@@ -301,8 +301,8 @@ function Backtrack() {
       temperature *= coolingRate;
     }
 
-    setSchedules(bestSchedules); // Update schedules state with the best found schedules
-    finalConflictCheck(bestSchedules); // Perform final conflict check with the best schedules
+    setSchedules(bestSchedules); 
+    finalConflictCheck(bestSchedules); 
   };
 
   const simulatedAnnealingMove = (schedules) => {
@@ -320,7 +320,7 @@ function Backtrack() {
       const emptyIndex = emptySlots[Math.floor(Math.random() * emptySlots.length)];
   
       if (emptyIndex > filledIndex) {
-        // Swap filled slot with empty slot to move the empty slot to the end
+        
         const temp = day[filledIndex];
         day[filledIndex] = day[emptyIndex];
         day[emptyIndex] = temp;
@@ -340,7 +340,7 @@ function Backtrack() {
         let lastNonEmptySlot = -1;
         let firstEmptySlotAfterLastTeaching = -1;
         let hasTeachingStarted = false;
-        let subjectsSeen = new Set(); // Track subjects seen during the day
+        let subjectsSeen = new Set(); 
   
         day.forEach((period, slotIndex) => {
           if (period) {
@@ -356,7 +356,7 @@ function Backtrack() {
                 otherSchedule[dayIndex][slotIndex] &&
                 otherSchedule[dayIndex][slotIndex].teacher === teacher
               ) {
-                fitness -= 500; // Increased penalty for conflicts
+                fitness -= 500; 
               }
             });
   
@@ -366,9 +366,9 @@ function Backtrack() {
             dailyTeachingHours[teacher]++;
             fitness += 10;
   
-            // Check for multiple periods of the same subject on the same day
+            
             if (subjectsSeen.has(period.name)) {
-              fitness -= 200; // Penalize multiple periods of the same subject on the same day
+              fitness -= 200; 
             } else {
               subjectsSeen.add(period.name);
             }
@@ -386,10 +386,10 @@ function Backtrack() {
         }
   
         Object.values(dailyTeachingHours).forEach((hours) => {
-          if (hours > 3) fitness -= 25 * (hours - 3); // Increased penalty for long teaching hours
+          if (hours > 3) fitness -= 25 * (hours - 3); 
         });
   
-        // Penalize for empty slots in the middle of teaching periods
+        
         for (let i = 0; i < day.length; i++) {
           if (day[i] === null && hasTeachingStarted) {
             if (i < lastNonEmptySlot) {
@@ -409,7 +409,7 @@ function Backtrack() {
 
   useEffect(() => {
     console.log("Schedules state updated:", schedules);
-  }, [schedules]); // Itt a schedules az a változó amire figyelünk ha változik fut a useEffect
+  }, [schedules]); 
 
   const generatePdf = () => {
     const doc = new jsPDF();
