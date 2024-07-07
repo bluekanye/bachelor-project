@@ -51,7 +51,7 @@ function Backtrack() {
       const classSubjectData = classSubjectResponse.data;
       console.log("Class Subject Data:", classSubjectData); 
   
-      // Process the data
+     
       const classMap = {};
   
       classSubjectData.forEach(item => {
