@@ -33,7 +33,7 @@ function Navbar() {
       {/* Dark Mode Toggle */}
       <DarkModeToggle />
       {/* <div className="navbar-toggler">
-        <span></span> {/* For toggle icon, you can use an icon library or create a custom one */}
+        <span></span> }
       {/* </div> */}
     </nav>
   );

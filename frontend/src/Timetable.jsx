@@ -43,7 +43,7 @@ const Timetable = () => {
         // `http://localhost:3001/api/${tableMapping[selectedTable].toLowerCase()}` localhost mukodeshez
         `${process.env.REACT_APP_API_URL}/api/${tableMapping[selectedTable].toLowerCase()}`
       );
-      console.log("API Response:", response.data); // Debugging line
+      console.log("API Response:", response.data); 
       setData(response.data);
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -112,7 +112,7 @@ const Timetable = () => {
     setNewData({ ...newData, [name]: value });
 
     if (name === "subjectname") {
-      // Update the list of teachers based on the selected subject
+      
       const filtered = teacherSubjects
         .filter((ts) => ts.subjectname === value)
         .map((ts) => ({
@@ -287,7 +287,7 @@ const Timetable = () => {
     setIsEditing(true);
     setEditingItemId(item[idField]);
     setNewData({
-      ...item, // Az összes mezőt beállítjuk az adatokból
+      ...item, 
     });
     setSelectedSubjects(
       item.subjectname

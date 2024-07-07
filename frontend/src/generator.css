@@ -1,11 +1,11 @@
 .schedule-generator-container {
     padding: 20px;
     max-width: 800px;
-    margin: 5vh auto; /* Középre helyezi az egész konténert */
+    margin: 5vh auto; 
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border: 1px solid #ccc; /* Adj hozzá bordert */
+    border: 1px solid #ccc; 
   }
   
   .schedule-generator-title {
@@ -17,7 +17,7 @@
   
   .timetable-container {
     overflow-x: auto;
-    margin-bottom: 20px; /* Adj plusz alul helyet, ha szükséges */
+    margin-bottom: 20px;
   }
   
   .timetable {
@@ -31,15 +31,15 @@
   .timetable td {
     text-align: center;
     padding: 10px;
-    border: 1px solid #dddddd; /* Táblázat celláinak bordere */
+    border: 1px solid #dddddd; 
   }
   
   .timetable th {
     background-color: #007bff;
     color: white;
-    height: 60px; /* Nagyobb magasság a fejlécnek */
-    font-size: 18px; /* Nagyobb betűméret, ha szükséges */
+    height: 60px; 
+    font-size: 18px; 
   }
   
-  /* A további stílusokat megtartod, vagy szükség szerint módosítod. */
+  
   

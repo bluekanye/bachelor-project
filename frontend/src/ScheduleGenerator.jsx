@@ -48,8 +48,7 @@ const ScheduleGenerator = () => {
   }, []);
 
   const generateScheduleLogicBacktracking = () => {
-    // Egyszerűsítettük a függvényt a példa érdekében
-    // Tegyük fel, hogy minden osztálynak ugyanazok a tárgyai vannak
+  
     const newGeneratedSchedules = availableSchedules.map((className) => {
       const newSchedule = days.reduce((scheduleByDay, day) => {
         scheduleByDay[day] = timeSlots.reduce((scheduleByTime, timeSlot) => {

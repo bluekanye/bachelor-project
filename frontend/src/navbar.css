@@ -89,7 +89,7 @@ body.dark .navbar {
 
 .active {
   font-weight: bold;
-  /* background-color: darkblue; */
+
   font-size: larger;
   border: 2px solid rgba(255, 255, 255, 0.5);
   border-radius: 5px;
